@@ -194,4 +194,50 @@ router.get('/batch', requireAuth, async (req, res) => {
   return res.json({ results });
 });
 
+// ── GET /api/ticker/history ──────────────────────────────────────────────────
+// OHLCV price history for a ticker — used by portfolio chart slicers
+// ?t=SCHB&range=1mo   range: 1d|5d|1mo|3mo|6mo|ytd|1y|2y|5y|10y|max
+router.get('/history', requireAuth, async (req, res) => {
+  const ticker = (req.query.t || '').trim().toUpperCase();
+  const range  = req.query.range || '1mo';
+  if (!ticker) return res.status(400).json({ error: 'Ticker required.' });
+
+  const validRanges = ['1d','5d','1mo','3mo','6mo','ytd','1y','2y','5y','10y','max'];
+  if (!validRanges.includes(range))
+    return res.status(400).json({ error: `Invalid range. Must be one of: ${validRanges.join(', ')}` });
+
+  const intervalMap = { '1d':'5m','5d':'15m','1mo':'1d','3mo':'1d','6mo':'1d','ytd':'1d','1y':'1d','2y':'1wk','5y':'1mo','10y':'1mo','max':'1mo' };
+  const interval = intervalMap[range] || '1d';
+
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=${range}&interval=${interval}&includePrePost=false`;
+    const r = await fetchWithTimeout(url);
+    const data = await r.json();
+    const result = data?.chart?.result?.[0];
+    if (!result) return res.status(404).json({ error: `No history found for ${ticker}` });
+
+    const timestamps = result.timestamp || [];
+    const closes = result.indicators?.quote?.[0]?.close || [];
+    const meta = result.meta || {};
+
+    const points = timestamps.map((ts, i) => ({
+      date: new Date(ts * 1000).toISOString().split('T')[0],
+      price: closes[i] != null ? Math.round(closes[i] * 100) / 100 : null,
+    })).filter(p => p.price !== null);
+
+    return res.json({
+      ticker,
+      range,
+      interval,
+      currency: meta.currency || 'USD',
+      name: meta.shortName || ticker,
+      currentPrice: meta.regularMarketPrice || null,
+      points,
+    });
+  } catch (err) {
+    console.error(`[history error ${ticker}]`, err.message);
+    return res.status(502).json({ error: 'Yahoo Finance unavailable. Try again shortly.' });
+  }
+});
+
 module.exports = router;

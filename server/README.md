@@ -1,48 +1,71 @@
 # FinTrack Server
 
-Express + SQLite backend providing JWT auth, per-user data storage, and a
-Yahoo Finance proxy (no CORS issues, 15-minute price caching).
+Node.js + Express backend for FinTrack. Provides:
+- JWT authentication with per-user SQLite storage
+- Yahoo Finance proxy (no CORS, server-side price fetching)  
+- REST API for budgets, HYSA, stocks, and settings
 
-## Quick start
+## Quick Start
 
 ```bash
 cd server
 npm install
-cp .env.example .env   # then edit .env — change JWT_SECRET!
-npm start              # http://localhost:3001
+cp .env.example .env
+# Edit .env — set a strong JWT_SECRET!
+npm start
 ```
 
-Open `src/dashboard.html` in your browser — it auto-detects the server.
+Then open http://localhost:3001 in your browser.
 
-## Endpoints
+## API Reference
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/api/auth/signup` | — | Create account |
-| POST | `/api/auth/login` | — | Sign in, returns JWT |
-| GET | `/api/auth/me` | ✓ | Verify token |
-| GET | `/api/data` | ✓ | Load all user data |
-| PUT | `/api/data` | ✓ | Save all user data |
-| PUT | `/api/data/:key` | ✓ | Save one data key (budgets, stocks, etc.) |
-| GET | `/api/ticker/lookup?q=SCHB` | — | Ticker name + price (auto-fill) |
-| GET | `/api/ticker/quote?t=SCHB` | ✓ | Full quote for one ticker |
-| GET | `/api/ticker/batch?t=A,B,C` | ✓ | Batch quotes (max 20) |
-| GET | `/api/health` | — | Health check |
+| POST | /api/auth/signup | No | Create account (username, password, dob?, risk?) |
+| POST | /api/auth/login | No | Sign in, get JWT |
+| GET | /api/auth/me | Yes | Verify token, get user info |
+| PUT | /api/auth/profile | Yes | Update DOB and risk tolerance |
+| PUT | /api/auth/password | Yes | Change password |
+| GET | /api/data | Yes | Load all user data |
+| PUT | /api/data | Yes | Save all user data |
+| PUT | /api/data/:key | Yes | Save one key (budgets/hysa/stocks/settings) |
+| GET | /api/ticker/lookup?q=SCHB | No | Ticker search + price autofill |
+| GET | /api/ticker/quote?t=SCHB | Yes | Full quote for one ticker |
+| GET | /api/ticker/batch?t=A,B,C | Yes | Batch quotes |
+| GET | /api/ticker/history?t=SCHB&range=1mo | Yes | OHLCV price history |
+| GET | /api/health | No | Server health check |
 
-## Offline mode
+## Environment Variables
 
-If the server is not running, the dashboard falls back to localStorage
-automatically — no data is lost. When the server comes back online, data
-syncs on the next save action.
+See `.env.example` for all options. Most important: set `JWT_SECRET` to a long random string.
 
-## Deploying (optional)
+Generate one:
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
 
-The app works fully without a server. If you want live price quotes without
-the CORS proxy workaround, deploy the server to any Node.js host:
+## Deployment
 
-- **Railway** — `railway up` (free tier available)
-- **Render** — connect GitHub repo, set `Root Directory = server`
-- **Fly.io** — `fly launch`
-- **Your own VPS** — `npm start` behind nginx
+### Render (free tier)
+1. Push to GitHub
+2. New Web Service → connect repo → Root directory: `server`
+3. Build: `npm install` · Start: `npm start`
+4. Add env vars: `JWT_SECRET`, `NODE_ENV=production`
 
-Then set `CORS_ORIGIN=https://yourname.github.io` in your production `.env`.
+### Railway
+1. New project → Deploy from GitHub
+2. Set working directory to `server/`
+3. Add env vars in dashboard
+
+### VPS / Self-hosted
+```bash
+git clone https://github.com/YOUR_USERNAME/fintrack.git
+cd fintrack/server
+npm install
+cp .env.example .env && nano .env   # set JWT_SECRET
+npm start
+# Or with PM2 for auto-restart:
+npm install -g pm2
+pm2 start index.js --name fintrack
+pm2 save && pm2 startup
+```

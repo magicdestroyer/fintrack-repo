@@ -62,3 +62,28 @@ All notable changes documented here. Format: [Keep a Changelog](https://keepacha
 
 ## [v1.5.0 and earlier] — 2026-03-16 · branch: main
 - Multi-HYSA accounts. Compound projections. Roth IRA charts. Initial planning docs.
+
+---
+
+## [v1.11.0] — 2026-03-16 · branch: feature/fullstack-app
+### Added
+- **Full-stack Node.js/Express backend** with SQLite database
+- **Cross-device sync** — all data (budgets, HYSA, stocks, settings) persisted
+  server-side and loaded on login from any device/browser
+- **Server-side Yahoo Finance proxy** — no CORS issues, 15-min price cache
+- **Price history endpoint** — `/api/ticker/history` for real OHLCV data
+- **Profile sync** — DOB and risk tolerance stored in users table
+- **Mobile-responsive layout** — bottom tab bar, single-column stacking, 44px touch targets
+- **start.sh / start.bat** — one-command local startup scripts
+- **Deployment guides** — Render, Railway, Fly.io, VPS instructions
+
+### Changed
+- `API_BASE` auto-detects same-origin vs file:// for dual-mode operation
+- `saveProfile()` now calls `PUT /api/auth/profile` when backend available
+- `loginAs()` syncs DOB + risk from server response
+
+### Architecture
+```
+server/public/index.html  ← served by Express (production)
+src/dashboard.html        ← standalone file:// version (development)
+```

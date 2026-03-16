@@ -32,36 +32,32 @@ function initSchema() {
   db.exec(`
     PRAGMA journal_mode = WAL;
     PRAGMA foreign_keys = ON;
-
-    -- User accounts
     CREATE TABLE IF NOT EXISTS users (
-      id           TEXT    PRIMARY KEY,          -- UUID (generated server-side)
-      username     TEXT    UNIQUE NOT NULL,      -- case-insensitive stored as lowercase
-      password_hash TEXT   NOT NULL,             -- bcrypt hash
-      created_at   INTEGER DEFAULT (strftime('%s','now')),
-      last_login   INTEGER DEFAULT (strftime('%s','now'))
+      id            TEXT PRIMARY KEY,
+      username      TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      dob           TEXT DEFAULT '',
+      risk          TEXT DEFAULT 'moderate',
+      created_at    INTEGER DEFAULT (strftime('%s','now')),
+      last_login    INTEGER DEFAULT (strftime('%s','now'))
     );
-
-    -- Per-user JSON data blobs
-    -- Each (user_id, data_key) pair holds one JSON string
-    -- data_key is one of: budgets | hysa | stocks | settings
     CREATE TABLE IF NOT EXISTS user_data (
-      user_id      TEXT    NOT NULL,
-      data_key     TEXT    NOT NULL,
-      data_value   TEXT    NOT NULL DEFAULT '{}',  -- JSON string
-      updated_at   INTEGER DEFAULT (strftime('%s','now')),
+      user_id   TEXT NOT NULL,
+      data_key  TEXT NOT NULL,
+      data_value TEXT NOT NULL DEFAULT '{}',
+      updated_at INTEGER DEFAULT (strftime('%s','now')),
       PRIMARY KEY (user_id, data_key),
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
-
-    -- Yahoo Finance price cache (avoids hammering the API)
-    -- Cached for 15 minutes per ticker
     CREATE TABLE IF NOT EXISTS price_cache (
-      ticker       TEXT    PRIMARY KEY,
-      data         TEXT    NOT NULL,              -- JSON: {name, price, change, changePct}
-      cached_at    INTEGER DEFAULT (strftime('%s','now'))
+      ticker    TEXT PRIMARY KEY,
+      data      TEXT NOT NULL,
+      cached_at INTEGER DEFAULT (strftime('%s','now'))
     );
   `);
+  for (const col of ['dob TEXT DEFAULT ""', 'risk TEXT DEFAULT "moderate"']) {
+    try { db.exec(`ALTER TABLE users ADD COLUMN ${col}`); } catch(e) { /* already exists */ }
+  }
 }
 
 // ── User operations ──────────────────────────────────────────────────────────
@@ -93,11 +89,16 @@ function getUserById(id) {
  * @param {string} passwordHash — pre-hashed with bcrypt
  * @returns {object} the created user row
  */
-function createUser(id, username, passwordHash) {
+function createUser(id, username, passwordHash, dob = '', risk = 'moderate') {
   db.prepare(
-    'INSERT INTO users (id, username, password_hash) VALUES (?, lower(?), ?)'
-  ).run(id, username, passwordHash);
+    'INSERT INTO users (id, username, password_hash, dob, risk) VALUES (?, lower(?), ?, ?, ?)'
+  ).run(id, username, passwordHash, dob || '', risk || 'moderate');
   return getUserById(id);
+}
+
+function updateProfile(userId, dob, risk) {
+  db.prepare('UPDATE users SET dob = ?, risk = ? WHERE id = ?').run(dob || '', risk || 'moderate', userId);
+  return getUserById(userId);
 }
 
 /**

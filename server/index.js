@@ -68,9 +68,16 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-// ── 404 handler ──────────────────────────────────────────────────────────────
-app.use((req, res) => {
-  res.status(404).json({ error: `Route ${req.method} ${req.path} not found.` });
+// ── Serve frontend (static files from public/) ──────────────────────────────
+const PUBLIC_DIR = path.join(__dirname, 'public');
+app.use(express.static(PUBLIC_DIR));
+
+// SPA fallback — serve index.html for any non-API route
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: `Route ${req.method} ${req.path} not found.` });
+  }
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
 
 // ── Global error handler ─────────────────────────────────────────────────────
