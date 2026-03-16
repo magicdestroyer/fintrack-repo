@@ -2348,14 +2348,22 @@ function updateLiveTicker() {
 
 
 // ── PWA: Service Worker Registration ─────────────────────────────────────────
+// Only register when running on a real server — skip on claudeusercontent.com
+// and file:// so there's no 404 warning in previews
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      console.log('[SW] registered:', reg.scope);
-      // Check for updates every 60s while app is open
-      setInterval(() => reg.update(), 60000);
-    }).catch(err => console.warn('[SW] registration failed:', err));
-  });
+  const isRealServer = (
+    window.location.protocol === 'https:' ||
+    (window.location.protocol === 'http:' && window.location.hostname === 'localhost')
+  ) && !window.location.hostname.includes('claudeusercontent.com');
+
+  if (isRealServer) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').then(reg => {
+        console.log('[SW] registered:', reg.scope);
+        setInterval(() => reg.update(), 60000);
+      }).catch(err => console.warn('[SW] registration failed:', err));
+    });
+  }
 }
 
 // ── Deep link support: ?page=stocks loads that page on open ──────────────────
