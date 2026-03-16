@@ -271,13 +271,35 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div id="login-form">
       <div class="auth-field"><label>Username</label><input type="text" id="lu" placeholder="Username" autocomplete="username"></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="lp" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="auth-field"><label>Password</label>
+  <div style="position:relative;display:flex;align-items:center;">
+    <input type="password" id="lp" placeholder="Password" autocomplete="current-password"
+      onkeydown="if(event.key==='Enter')doLogin()"
+      style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 40px 10px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+    <button type="button" onclick="togglePw('lp','lp-eye')" tabindex="-1"
+      style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;line-height:1;" id="lp-eye">👁</button>
+  </div>
+</div>
       <button class="auth-btn" onclick="doLogin()">Sign in</button>
     </div>
     <div id="signup-form" style="display:none;">
       <div class="auth-field"><label>Username</label><input type="text" id="su" placeholder="Choose a username"></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="sp" placeholder="Choose a password"></div>
-      <div class="auth-field"><label>Confirm password</label><input type="password" id="sp2" placeholder="Confirm password"></div>
+      <div class="auth-field"><label>Password</label>
+  <div style="position:relative;display:flex;align-items:center;">
+    <input type="password" id="sp" placeholder="Choose a password"
+      style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 40px 10px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+    <button type="button" onclick="togglePw('sp','sp-eye')" tabindex="-1"
+      style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;line-height:1;" id="sp-eye">👁</button>
+  </div>
+</div>
+      <div class="auth-field"><label>Confirm password</label>
+  <div style="position:relative;display:flex;align-items:center;">
+    <input type="password" id="sp2" placeholder="Confirm password"
+      style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 40px 10px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+    <button type="button" onclick="togglePw('sp2','sp2-eye')" tabindex="-1"
+      style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;line-height:1;" id="sp2-eye">👁</button>
+  </div>
+</div>
       <div class="auth-field"><label>Date of birth</label><input type="date" id="su-dob" style="color-scheme:dark;" placeholder="YYYY-MM-DD"></div>
       <div class="auth-field">
         <label>Risk tolerance</label>
@@ -582,7 +604,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
               </select>
             </div>
             <div class="sfield"><label>Change password</label>
-              <input type="password" id="npw" placeholder="New password" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px;">
+              <div style="position:relative;display:flex;align-items:center;margin-bottom:8px;">
+  <input type="password" id="npw" placeholder="New password"
+    style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 40px 8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+  <button type="button" onclick="togglePw('npw','npw-eye')" tabindex="-1"
+    style="position:absolute;right:8px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:4px;line-height:1;" id="npw-eye">👁</button>
+</div>
               <button class="sbtn" onclick="chgPw()" style="padding:8px 16px;">Update</button>
               <div id="pwm" style="font-size:12px;color:var(--accent);margin-top:6px;min-height:16px;"></div>
             </div>
@@ -736,26 +763,7 @@ function swTab(t){
   document.getElementById('tab-signup').className='auth-tab'+(t==='signup'?' active':'');
   document.getElementById('aerr').textContent='';
 }
-function doLogin(){
-  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;
-  if(!u||!p){setAE('Please fill in all fields.');return;}
-  const f=gU().find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===hp(p));
-  if(!f){setAE('Invalid username or password.');return;}
-  loginAs(f);
-}
-function doSignup(){
-  const u=document.getElementById('su').value.trim(),p=document.getElementById('sp').value,p2=document.getElementById('sp2').value;
-  if(!u||!p||!p2){setAE('Please fill in all fields.');return;}
-  if(u.length<3){setAE('Username must be at least 3 characters.');return;}
-  if(p.length<4){setAE('Password must be at least 4 characters.');return;}
-  if(p!==p2){setAE('Passwords do not match.');return;}
-  const us=gU();
-  if(us.find(x=>x.username.toLowerCase()===u.toLowerCase())){setAE('Username already taken.');return;}
-  const dob=document.getElementById('su-dob')?.value||'';
-  const risk=document.getElementById('su-risk')?.value||'moderate';
-  const nu={id:Date.now().toString(36),username:u,password:hp(p),dob,risk};
-  us.push(nu);sU(us);loginAs(nu);
-}
+// doLogin and doSignup defined below as async (backend-aware versions)
 function loginAs(user){
   CU=user; localStorage.setItem('ft_session',user.id);
   document.getElementById('auth-screen').style.display='none';
@@ -1543,7 +1551,7 @@ function buildStockPrompt(ticker,acct,ctx,portfolioCtx){
   const p=getUserProfileContext();
   const riskGuidance={
     conservative:'Prioritize low-volatility, dividend-paying, or bond-like instruments. Flag any high-beta or speculative characteristics.',
-    moderate:'Balance growth potential with reasonable risk. Flag extreme volatility but don't avoid all risk.',
+    moderate:'Balance growth potential with reasonable risk. Flag extreme volatility but do not avoid all risk.',
     aggressive:'Emphasize growth potential, moat, and upside. Downside risk is acceptable for long-term hold.',
     speculative:'Give bold analysis. Include options potential, short-term catalysts, and high-conviction bull/bear cases.'
   };
@@ -2381,6 +2389,20 @@ window.addEventListener('appinstalled', () => {
   console.log('[PWA] App installed successfully');
 });
 
+
+// ── PASSWORD VISIBILITY TOGGLE ────────────────────────────────────────────────
+function togglePw(inputId, btnId) {
+  const inp = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (!inp) return;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    if (btn) btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    if (btn) btn.textContent = '👁';
+  }
+}
 </script>
 </body>
 </html>
