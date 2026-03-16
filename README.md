@@ -1,52 +1,75 @@
 # FinTrack — Personal Finance Dashboard
 
-A fully local, browser-based personal finance dashboard with multi-user login, stock portfolio tracking, HYSA management, Roth IRA projections, and budget logging.
+A fully local, browser-based personal finance dashboard. No server required — open
+`src/dashboard.html` in any browser to start.
 
-## Features
-- 🔐 Multi-user login with per-user data isolation
-- 📊 Dashboard with income/expense charts
-- 📅 Year-by-year budget logger with recommended spending percentages
-- 💰 Savings buckets (emergency fund, medical, utilities, etc.)
-- 🏦 HYSA account manager — compounding calculator, FDIC limit tracker, transfer timeline alerts
-- 📈 Stock portfolio tracker with trend alerts
-- 🔮 Roth IRA + HYSA wealth projections to age 65
-- 🎨 5 color themes + custom accent picker
-
-## Files
-| File | Description |
-|------|-------------|
-| `src/dashboard.html` | Main app — open this in any browser |
-| `FinTrack_Stock_Tracker.xlsx` | Excel workbook with per-market stock sheets |
-| `docs/CHANGELOG.md` | Full version history |
-
-## Quick Start
+## Quick start
 1. Download `src/dashboard.html`
 2. Open in Chrome, Firefox, or Edge
-3. Create an account and start logging
+3. Create an account (DOB + risk tolerance help personalize AI analysis)
+4. Start logging budgets, stocks, and HYSA accounts
 
-## Data Storage
-All data saves to your browser's `localStorage`. It persists between sessions on the same device/browser. Use **Settings → Export as JSON** to back up your data.
+## Features
 
-## Excel Stock Tracker
-Open `FinTrack_Stock_Tracker.xlsx` in Excel or Google Sheets. Sheets:
-- **Summary** — auto-totals across all markets
-- **Roth IRA** — pre-loaded with your current holdings
-- **US Stocks / ETFs / International / Crypto** — add holdings per market
-- **Price Log** — manual price update audit trail
-- **README** — instructions inside the file
+| Feature | Description |
+|---------|-------------|
+| 🔐 Multi-user login | Per-user data isolation, session persistence |
+| 📅 Budget Logger | Income/expense tracking with weekly–annually frequencies, YTD row, spending tips |
+| 💰 Savings Buckets | Emergency fund, medical fund, etc. with smart target suggestions |
+| 🏦 HYSA Accounts | Multi-account FDIC tracker, compounding calculator, rates database autofill |
+| 📈 Stock Portfolio | Add holdings, live Yahoo Finance prices (2s polling), extended hours toggle |
+| 📊 Portfolio Slicers | 1D/5D/1M/3M/6M/YTD/1Y/All range filter on portfolio chart |
+| 🤖 AI Stock Analyzer | Claude-powered analysis personalized to your age + risk tolerance |
+| 🎯 Allocation Optimizer | Portfolio rebalancing recommendations for your specific profile |
+| 🔮 Monte Carlo Projections | Stochastic GBM projection with P10–P90 probability bands |
+| 🎨 Themes | 5 dark color themes + custom accent picker |
+| 📤 Export | JSON data export + CSV stock sync with Excel |
 
-## Budget Recommendation Guide
-The budget logger automatically compares your spending against these targets:
+## AI personalization
 
-| Category | Recommended % of Income |
-|----------|------------------------|
-| Housing/Rent | 25–30% |
-| Food/Groceries | 10–15% |
-| Transportation | 10–15% |
-| Utilities | 5–10% |
-| Phone | 2–5% |
-| Healthcare | 5–10% |
-| Entertainment | 3–5% |
-| Personal/Misc | 5–10% |
-| **Total Savings** | **≥20%** |
+FinTrack personalizes all AI analysis to your investor profile:
+- **Date of birth** → calculates age and years to retirement
+- **Risk tolerance** → conservative / moderate / aggressive / speculative
 
+Set these during signup or update them in Settings → Account & Profile.
+
+## Excel companion files
+
+| File | Description |
+|------|-------------|
+| `FinTrack_Stock_Tracker.xlsx` | Per-market stock sheets with formulas |
+| `HYSA_Rates_Reference.xlsx` | 15 HYSA accounts with current APY rates |
+
+## Git branch structure
+
+```
+main (v1.8.0 — stable)
+└── feature/advanced-analytics (v1.9.0 — Monte Carlo, AI analyzer, live prices)
+    └── feature/budget-enhancements (v1.10.0 — WIP, all recent changes)
+```
+
+To push to GitHub:
+```bash
+git remote add origin https://github.com/YOUR_USERNAME/fintrack.git
+git push -u origin main
+git push origin feature/advanced-analytics
+git push origin feature/budget-enhancements
+```
+
+See `docs/GITHUB_SETUP.md` for full instructions.
+
+## Data storage
+
+All data is saved to your browser's `localStorage`. Use **Settings → Export as JSON**
+to back up. Data persists between sessions on the same device/browser.
+
+## Roadmap highlights
+
+- Real-time WebSocket price feed
+- Dividend tracker with yield-on-cost
+- Tax lot tracking (FIFO/LIFO/SpecID)
+- PWA home screen install
+- Price alert push notifications
+- Google Sheets two-way sync
+
+See the **Roadmap** page inside the app for the full backlog.

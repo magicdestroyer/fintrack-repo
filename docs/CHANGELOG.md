@@ -1,74 +1,64 @@
-# FinTrack Changelog
+# FinTrack — Changelog
 
-All notable changes are documented here in reverse chronological order.
+All notable changes documented here. Format: [Keep a Changelog](https://keepachangelog.com).
 
 ---
 
-## [v1.8.0] — 2026-03-16
+## [v1.10.0] — 2026-03-16 · branch: feature/budget-enhancements
 ### Added
-- Budget spending recommendations per expense line (auto-detects category, shows recommended % range and status badge)
-- Excel Stock Tracker workbook with per-market sheets, formulas, conditional formatting, Price Log
-- GitHub repository scaffold with README, CHANGELOG, full version history
+- **Personalized AI** — signup collects DOB + risk tolerance. All AI analysis
+  calibrated to real investor age and risk profile.
+- **Profile settings** — editable DOB + risk in Settings; live age/retirement calc.
+- **AI result badges** — analysis cards show age + risk label.
+- **Auto-fetch price on add** — leave buy price blank → Yahoo Finance fills it.
+- **Portfolio chart range slicers** — 1D/5D/1M/3M/6M/YTD/1Y/All with gain/loss header.
+- **Lightweight live card updates** — price/% badges refresh without DOM rebuild.
+
+### Changed
+- `buildStockPrompt` and `buildAllocPrompt` now include investor age, risk
+  tolerance, time horizon, and risk-specific guidance.
+- Portfolio line color = green gain / red loss for the selected period.
 
 ---
 
-## [v1.7.0] — 2026-03-16
+## [v1.9.2] — 2026-03-16 · branch: feature/budget-enhancements
+### Fixed
+- RangeError stack overflow on Stock Portfolio — double function declaration removed.
 ### Added
-- HYSA compounding frequency selector (Daily / Weekly / Monthly / Quarterly / Annually)
-- Current balance field per HYSA account (running total, FDIC bar reflects real balance)
-- FDIC transfer timeline — years until $250k based on compound interest math
-- Savings buckets in budget logger (Emergency Fund, Medical Fund, Utilities Reserve + add your own)
+- HYSA starts blank. Live pref + extended hours persist. Market status indicator.
+- Roth contribution slider. Next-charge date for recurring items.
 
 ---
 
-## [v1.6.0] — 2026-03-16
+## [v1.9.1] — 2026-03-16 · branch: feature/budget-enhancements
+### Fixed
+- TypeError: number 0 is not a function in gyt() — Array.isArray guards added.
+- RangeError in rlines() — uLsafe + onblur pattern prevents recursive re-render.
 ### Added
-- Contribute-until-age slider in Projections (age 19–64, live chart update)
-- Stock Portfolio page — add holdings, log price updates, mini sparkline per card, trend alerts
-- Portfolio history chart — aggregated value over time
-- Multi-user login system — per-user data isolation, session persistence
-- Settings page — 5 themes, accent color picker, password change, JSON export
+- Budget starts blank. Empty-state prompt. Weekly/bi-weekly/quarterly/semi-annually
+  income and expense frequencies. YTD row. Savings bucket smart targets + tips.
+  HYSA ticker autofill. HYSA_Rates_Reference.xlsx.
 
 ---
 
-## [v1.5.0] — 2026-03-16
+## [v1.9.0] — 2026-03-16 · branch: feature/advanced-analytics
 ### Added
-- Multi-HYSA account system with ticker names and $0–$100k deposit slider
-- FDIC limit tracking per account with projected balance bar
-- HYSA page in sidebar
+- Monte Carlo stochastic projections (GBM). AI Stock Analyzer. Allocation Optimizer.
+  Live Yahoo Finance polling (2s). Roadmap page.
 
 ---
 
-## [v1.4.0] — 2026-03-16
+## [v1.8.0] — 2026-03-16 · branch: main (stable)
 ### Added
-- Compound interest scenarios — stop at 35/40/50/60 comparison
-- Annual harvest strategy modeler (Roth contributions to HYSA)
-- Roth + HYSA combined projections with dual-line chart
+- Budget spending recommendations. FinTrack_Stock_Tracker.xlsx. GitHub repo scaffold.
 
----
-
-## [v1.3.0] — 2026-03-16
+## [v1.7.0] — 2026-03-16 · branch: main
 ### Added
-- Interactive Roth IRA compound growth chart (age 18–65)
-- Multi-scenario side-by-side comparison with metric cards
-- Stock analysis tools (CHPY vs index fund comparison)
+- HYSA compounding selector. Current balance + FDIC timeline. Savings buckets.
 
----
-
-## [v1.2.0] — 2026-03-16
+## [v1.6.0] — 2026-03-16 · branch: main
 ### Added
-- Financial Plan Word document (Summer_2025_Financial_Plan.docx)
-- Household Residence Agreement Word document
-- Talking points message for dad conversation
+- Contribute-until-age slider. Stock portfolio page. Multi-user login. Settings page.
 
----
-
-## [v1.1.0] — 2026-03-16
-### Added
-- Budget planning outline — Roth IRA eligibility, trust fund strategy, camp costs
-
----
-
-## [v1.0.0] — 2026-03-16
-### Initial release
-- Financial planning for 18-year-old investor — Roth IRA, trust distribution, part-time income strategy
+## [v1.5.0 and earlier] — 2026-03-16 · branch: main
+- Multi-HYSA accounts. Compound projections. Roth IRA charts. Initial planning docs.
