@@ -22,6 +22,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .auth-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:6px;}
 .auth-field input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;}
 .auth-field input:focus{border-color:var(--accent);}
+.pw-wrap{position:relative;}
+.pw-wrap input{width:100%;padding-right:42px;}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px;line-height:1;user-select:none;}
+.pw-eye:hover{color:var(--text);}
 .auth-btn{width:100%;background:var(--accent);color:#0d0f12;border:none;border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:0.5rem;}
 .auth-err{font-size:12px;color:var(--danger);margin-top:0.75rem;text-align:center;min-height:18px;}
 .auth-users{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem;}
@@ -221,13 +225,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div id="login-form">
       <div class="auth-field"><label>Username</label><input type="text" id="lu" placeholder="Username" autocomplete="username"></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="lp" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="auth-field"><label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="lp" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button type="button" class="pw-eye" onclick="togglePw('lp',this)" title="Show/hide password">👁</button>
+        </div>
+      </div>
       <button class="auth-btn" onclick="doLogin()">Sign in</button>
     </div>
     <div id="signup-form" style="display:none;">
       <div class="auth-field"><label>Username</label><input type="text" id="su" placeholder="Choose a username"></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="sp" placeholder="Choose a password"></div>
-      <div class="auth-field"><label>Confirm password</label><input type="password" id="sp2" placeholder="Confirm password"></div>
+      <div class="auth-field"><label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="sp" placeholder="Choose a password">
+          <button type="button" class="pw-eye" onclick="togglePw('sp',this)" title="Show/hide password">👁</button>
+        </div>
+      </div>
+      <div class="auth-field"><label>Confirm password</label>
+        <div class="pw-wrap">
+          <input type="password" id="sp2" placeholder="Confirm password">
+          <button type="button" class="pw-eye" onclick="togglePw('sp2',this)" title="Show/hide">👁</button>
+        </div>
+      </div>
       <div class="auth-field"><label>Date of birth</label><input type="date" id="su-dob" style="color-scheme:dark;" placeholder="YYYY-MM-DD"></div>
       <div class="auth-field">
         <label>Risk tolerance</label>
@@ -532,7 +551,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
               </select>
             </div>
             <div class="sfield"><label>Change password</label>
-              <input type="password" id="npw" placeholder="New password" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px;">
+              <div class="pw-wrap" style="margin-bottom:8px;">
+                <input type="password" id="npw" placeholder="New password" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+                <button type="button" class="pw-eye" onclick="togglePw('npw',this)" title="Show/hide">👁</button>
+              </div>
               <button class="sbtn" onclick="chgPw()" style="padding:8px 16px;">Update</button>
               <div id="pwm" style="font-size:12px;color:var(--accent);margin-top:6px;min-height:16px;"></div>
             </div>
@@ -676,6 +698,20 @@ function getUserProfileContext(){
 }
 function gSet(){return JSON.parse(localStorage.getItem(uk('settings'))||'{"themeIdx":0,"accent":"#3cefb0","liveEnabled":false,"extendedHours":false}');}
 function sSet(s){localStorage.setItem(uk('settings'),JSON.stringify(s));}
+
+function togglePw(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    btn.textContent = '🙈';
+    btn.title = 'Hide password';
+  } else {
+    inp.type = 'password';
+    btn.textContent = '👁';
+    btn.title = 'Show password';
+  }
+}
 
 function hp(p){let h=0;for(let i=0;i<p.length;i++)h=(Math.imul(31,h)+p.charCodeAt(i))|0;return h.toString(36);}
 
@@ -1485,7 +1521,7 @@ function buildStockPrompt(ticker,acct,ctx,portfolioCtx){
   const p=getUserProfileContext();
   const riskGuidance={
     conservative:'Prioritize low-volatility, dividend-paying, or bond-like instruments. Flag any high-beta or speculative characteristics.',
-    moderate:'Balance growth potential with reasonable risk. Flag extreme volatility but don't avoid all risk.',
+    moderate:'Balance growth potential with reasonable risk. Flag extreme volatility but don\'t avoid all risk.',
     aggressive:'Emphasize growth potential, moat, and upside. Downside risk is acceptable for long-term hold.',
     speculative:'Give bold analysis. Include options potential, short-term catalysts, and high-conviction bull/bear cases.'
   };
