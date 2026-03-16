@@ -259,24 +259,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="sc"><div class="sl">Net Savings</div><div class="sv b" id="ds-s">—</div></div>
         <div class="sc"><div class="sl">Stocks tracked</div><div class="sv p" id="ds-st">—</div></div>
       </div>
-      <!-- Quick add ticker -->
-      <div class="card" style="margin-bottom:1.25rem;">
-        <div class="ch" style="margin-bottom:10px;"><span class="ct">Quick add ticker</span><span style="font-size:11px;color:var(--muted);">Adds to Stock Portfolio + syncs to Excel</span></div>
-        <div style="display:grid;grid-template-columns:120px 1fr 100px 110px 110px auto;gap:8px;align-items:end;">
-          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Ticker</label>
-            <input type="text" id="qt-ticker" placeholder="SCHB" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:14px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"></div>
-          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Company name</label>
-            <input type="text" id="qt-name" placeholder="Schwab US Broad Market" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
-          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Shares</label>
-            <input type="number" id="qt-shares" placeholder="12" min="0" step="0.001" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;text-align:right;"></div>
-          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Buy price ($)</label>
-            <input type="number" id="qt-buy" placeholder="56.00" min="0" step="0.01" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;text-align:right;"></div>
-          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Account</label>
-            <select id="qt-acct" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"><option>Roth IRA</option><option>US Stocks</option><option>ETFs</option><option>International</option><option>Crypto</option></select></div>
-          <button class="sbtn" onclick="quickAddTicker()" style="height:34px;padding:0 14px;font-size:12px;">Add ↗</button>
-        </div>
-        <div id="qt-msg" style="font-size:12px;color:var(--accent);margin-top:8px;min-height:16px;"></div>
-      </div>
       <div class="tc">
         <div class="card"><div class="ch"><span class="ct">Income vs Expenses</span></div><div class="cw"><canvas id="dch1"></canvas></div></div>
         <div class="card"><div class="ch"><span class="ct">Savings Rate</span></div><div class="cw"><canvas id="dch2"></canvas></div></div>
@@ -438,15 +420,38 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <span style="font-size:11px;color:var(--muted);">Export/import matches the Price Log sheet in FinTrack_Stock_Tracker.xlsx</span>
       </div>
       <div class="asf">
-        <div class="ct" style="margin-bottom:12px;">Add a stock</div>
-        <div class="asg">
-          <div class="asf2"><label>Ticker</label><input type="text" id="nst" placeholder="SCHB" style="text-transform:uppercase;"></div>
-          <div class="asf2"><label>Company name</label><input type="text" id="nsn" placeholder="Schwab US Broad Market"></div>
-          <div class="asf2"><label>Shares</label><input type="number" id="nssh" placeholder="12" min="0" step="0.001"></div>
-          <div class="asf2"><label>Buy price ($)</label><input type="number" id="nsbp" placeholder="56.00" min="0" step="0.01"></div>
-          <button class="sbtn" onclick="addStock()" style="height:36px;padding:0 16px;">Add</button>
+        <div class="ch" style="margin-bottom:12px;"><span class="ct">Add a holding</span><span style="font-size:11px;color:var(--muted);">Ticker autofills company name &amp; price via Yahoo Finance</span></div>
+        <div style="display:grid;grid-template-columns:110px 1fr 90px 110px 1fr auto;gap:8px;align-items:end;flex-wrap:wrap;">
+          <div class="asf2">
+            <label>Ticker</label>
+            <input type="text" id="nst" placeholder="SCHB" style="text-transform:uppercase;width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:14px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;"
+              oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="asf2">
+            <label>Company name <span style="color:var(--muted);font-size:10px;">(auto-fills)</span></label>
+            <input type="text" id="nsn" placeholder="Auto-filled from ticker..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+          </div>
+          <div class="asf2">
+            <label>Shares</label>
+            <input type="number" id="nssh" placeholder="12" min="0" step="0.001" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;text-align:right;">
+          </div>
+          <div class="asf2">
+            <label>Buy price ($) <span style="color:var(--muted);font-size:10px;">(auto-fills)</span></label>
+            <input type="number" id="nsbp" placeholder="0.00" min="0" step="0.01" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;text-align:right;">
+          </div>
+          <div class="asf2">
+            <label>Account</label>
+            <select id="nst-acct" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+              <option>Roth IRA</option>
+              <option>US Stocks</option>
+              <option>ETFs</option>
+              <option>International</option>
+              <option>Crypto</option>
+            </select>
+          </div>
+          <button class="sbtn" onclick="addStock()" style="height:36px;padding:0 16px;align-self:end;">Add ↗</button>
         </div>
-        <div style="font-size:11px;font-family:'DM Mono',monospace;min-height:16px;margin-top:4px;" id="nst-status"></div>
+        <div style="font-size:11px;font-family:'DM Mono',monospace;min-height:18px;margin-top:5px;color:var(--accent);" id="nst-status"></div>
       </div>
       <div class="sg">
         <div class="sc"><div class="sl">Total invested</div><div class="sv b" id="sti">—</div></div>
@@ -657,25 +662,11 @@ function fmt(n,sh){
 }
 function thd(){return hysa.reduce((s,h)=>s+(h.annualDeposit||0),0);}
 function ensureYear(y){
-  const today=new Date().toISOString().split('T')[0];
   if(!budgets[y])budgets[y]={
-    income:[
-      {label:'Part-time wages',amount:8000,type:'monthly',date:''},
-      {label:'Trust distribution',amount:0,type:'onetime',date:today}
-    ],
-    expenses:[
-      {label:'Rent to Dad',amount:1200,type:'monthly',date:''},
-      {label:'Phone',amount:600,type:'monthly',date:''},
-      {label:'Food & groceries',amount:1500,type:'monthly',date:''},
-      {label:'Transportation',amount:800,type:'monthly',date:''},
-      {label:'Misc',amount:500,type:'monthly',date:''}
-    ],
-    roth:7000,
-    savingsBuckets:[
-      {id:1,label:'Emergency Fund',target:5000,saved:0,color:'#3cefb0',tip:'3–6 months of expenses. Top priority.'},
-      {id:2,label:'Medical / Surgery Fund',target:3000,saved:0,color:'#4e9eff',tip:'$1k min. Aim for $5–10k for surgeries.'},
-      {id:3,label:'Utilities Reserve',target:1200,saved:0,color:'#b78fff',tip:'1–2 months of utility bills as buffer.'}
-    ]
+    income:[],
+    expenses:[],
+    roth:0,
+    savingsBuckets:[]
   };
   if(!budgets[y].savingsBuckets)budgets[y].savingsBuckets=[];
   // Migrate old items missing type/date
@@ -688,13 +679,22 @@ function ensureYear(y){
 // Helper: get effective annual amount for an item based on type and date
 function getEffectiveAmount(it){
   const amt=parseFloat(it.amount)||0;
-  if(it.type==='monthly') return amt*12;
-  if(it.type==='onetime'){
+  const multipliers={weekly:52,biweekly:26,monthly:12,quarterly:4,semiann:2,annually:1};
+  if(multipliers[it.type]!==undefined) return amt*multipliers[it.type];
+  // one-time types (onetime / capex)
+  if(it.type==='onetime'||it.type==='capex'){
     if(!it.date) return amt;
     const d=new Date(it.date); const now=new Date();
     return d<=now ? amt : 0; // only count if date has passed
   }
-  return amt;
+  return amt*12; // default to monthly
+}
+
+// Helper: get frequency label for display
+function getFreqLabel(type){
+  const labels={weekly:'Weekly',biweekly:'Bi-weekly',monthly:'Monthly',quarterly:'Quarterly',
+    semiann:'Semi-annually',annually:'Annually',onetime:'One-time',capex:'One-time'};
+  return labels[type]||'Monthly';
 }
 
 // Helper: annual income total (for recommendation %s)
@@ -707,12 +707,22 @@ function getAnnualIncome(){
 // Helper: YTD earned so far this year
 function getYTDIncome(){
   const b=budgets[ay]; if(!b||!Array.isArray(b.income))return 0;
-  const now=new Date(); const monthsElapsed=now.getMonth()+1+(now.getDate()/30);
+  const now=new Date();
+  const dayOfYear=Math.floor((now-(new Date(now.getFullYear(),0,0)))/(1000*60*60*24));
+  const weekNum=Math.floor(dayOfYear/7);
+  const biweekNum=Math.floor(dayOfYear/14);
+  const monthsElapsed=now.getMonth()+1+(now.getDate()/30);
+  const qtrsElapsed=Math.floor(monthsElapsed/3);
   return b.income.reduce((s,it)=>{
     const amt=parseFloat(it.amount)||0;
-    if(it.type==='monthly') return s+(amt*monthsElapsed);
-    if(it.type==='onetime'){ const d=it.date?new Date(it.date):null; return s+((!d||d<=now)?amt:0); }
-    return s+amt;
+    if(it.type==='weekly')    return s+(amt*weekNum);
+    if(it.type==='biweekly')  return s+(amt*biweekNum);
+    if(it.type==='monthly')   return s+(amt*monthsElapsed);
+    if(it.type==='quarterly') return s+(amt*qtrsElapsed);
+    if(it.type==='semiann')   return s+(monthsElapsed>=6?amt:0);
+    if(it.type==='annually')  return s+(monthsElapsed>=12?amt:0);
+    const d=it.date?new Date(it.date):null;
+    return s+((!d||d<=now)?amt:0);
   },0);
 }
 function gyt(y){
@@ -725,12 +735,7 @@ function gyt(y){
   const bkt = Array.isArray(b.savingsBuckets) ? b.savingsBuckets.reduce((s,k)=>s+(parseFloat(k.saved)||0), 0) : 0;
   const net = inc-exp-rot-hys-bkt;
   const rate = inc>0 ? Math.round(((rot+hys+bkt)/inc)*100) : 0;
-  const ytd = Array.isArray(b.income) ? b.income.reduce((s,it)=>{
-    const amt=parseFloat(it.amount)||0;
-    if(it.type==='monthly'){const now=new Date();return s+(amt*(now.getMonth()+1+(now.getDate()/30)));}
-    if(it.type==='onetime'){const d=it.date?new Date(it.date):null;return s+((!d||d<=new Date())?amt:0);}
-    return s+amt;
-  },0) : 0;
+  const ytd = getYTDIncome();
   return {income:inc, expenses:exp, roth:rot, hysa:hys, buckets:bkt, net, rate, ytd};
 }
 
@@ -778,6 +783,17 @@ function rbudget(){
   const add=document.createElement('button');add.className='yb add';add.textContent='+ Add year';add.onclick=()=>{const ny=Math.max(...Object.keys(budgets).map(Number))+1;ensureYear(ny);ay=ny;sB(budgets);rbudget();};tabs.appendChild(add);
   ensureYear(ay);const b=budgets[ay];const ht=thd();
   document.getElementById('bform').innerHTML=`<div class="card"><div class="ch"><span class="ct">Budget — ${ay}</span></div>
+    <!-- Empty state -->
+    <div id="budget-empty-hint" style="display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;gap:12px;border:1px dashed var(--border2);border-radius:var(--radius-sm);margin-bottom:1rem;">
+      <div style="font-size:28px;">📋</div>
+      <div style="font-size:14px;font-weight:500;color:var(--text);">Your budget is empty</div>
+      <div style="font-size:13px;color:var(--muted);text-align:center;">Add income sources, expenses, a Roth IRA allocation, savings bucket goals, or a HYSA deposit to get started.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+        <button onclick="addL('income');document.getElementById('budget-empty-hint').style.display='none';" class="sbtn" style="font-size:12px;padding:7px 14px;">+ Add income</button>
+        <button onclick="addL('expenses');document.getElementById('budget-empty-hint').style.display='none';" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:7px 14px;font-size:12px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">+ Add expense</button>
+        <button onclick="addBkt();document.getElementById('budget-empty-hint').style.display='none';" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:7px 14px;font-size:12px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">+ Add savings bucket</button>
+      </div>
+    </div>
     <div class="bg2">
       <div><div class="fs">Income sources</div><div id="ilines"></div><button class="al" onclick="addL('income')">+ Add income</button></div>
       <div><div class="fs">Expenses</div><div id="elines"></div><button class="al" onclick="addL('expenses')">+ Add expense</button></div>
@@ -801,6 +817,10 @@ function rbudget(){
     <div class="srow"><span class="smsg" id="smsg">Saved!</span><button class="sbtn" onclick="saveBY()">Save budget</button></div>
   </div>`;
   rlines('income');rlines('expenses');rBuckets();updT();
+  // Show empty-state hints if everything is blank
+  const hasAny=(budgets[ay].income.length||budgets[ay].expenses.length||budgets[ay].savingsBuckets.length||(parseFloat(budgets[ay].roth)||0));
+  const hint=document.getElementById('budget-empty-hint');
+  if(hint) hint.style.display=hasAny?'none':'flex';
 }
 // Budget recommendation rules — keyword matched against label (case-insensitive)
 const BUDGET_RULES = [
@@ -838,17 +858,31 @@ function rlines(t){
       <button class="db" onclick="dL('${t}',${i})">×</button>
     </div>`;
     // Row 2: type toggle + date + effective annual amount
-    const typeOpts=t==='income'
-      ?`<option value="monthly" ${it.type==='monthly'?'selected':''}>Monthly</option><option value="onetime" ${it.type==='onetime'?'selected':''}>One-time</option>`
-      :`<option value="monthly" ${it.type==='monthly'?'selected':''}>Monthly</option><option value="capex" ${it.type==='capex'||it.type==='onetime'?'selected':''}>Capex / one-time</option>`;
+    const freqs=t==='income'?[
+      {v:'weekly',   l:'Weekly'},
+      {v:'biweekly', l:'Bi-weekly (every 2 wks)'},
+      {v:'monthly',  l:'Monthly'},
+      {v:'quarterly',l:'Quarterly'},
+      {v:'semiann',  l:'Semi-annually'},
+      {v:'annually', l:'Annually'},
+      {v:'onetime',  l:'One-time'},
+    ]:[
+      {v:'weekly',   l:'Weekly'},
+      {v:'biweekly', l:'Bi-weekly'},
+      {v:'monthly',  l:'Monthly'},
+      {v:'quarterly',l:'Quarterly'},
+      {v:'semiann',  l:'Semi-annually'},
+      {v:'annually', l:'Annually'},
+      {v:'capex',    l:'One-time / Capex'},
+    ];
+    const typeOpts=freqs.map(f=>`<option value="${f.v}" ${it.type===f.v?'selected':''}>${f.l}</option>`).join('');
     const row2=`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <select style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:11px;color:${typeColor};font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;"
         onchange="uLsafe('${t}',${i},'type',this.value);rlines('${t}');">
         ${typeOpts}
       </select>
-      <input type="date" value="${it.date||''}" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;outline:none;cursor:pointer;color-scheme:dark;"
-        onchange="uLsafe('${t}',${i},'date',this.value);"
-        placeholder="${today}">
+      <input type="date" value="${it.date||today}" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;outline:none;cursor:pointer;color-scheme:dark;"
+        onchange="uLsafe('${t}',${i},'date',this.value);">
       ${effAmt>0?`<span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);">≈ ${fmt(effAmt)}/yr effective</span>`:''}
       ${it.type!=='monthly'&&it.date&&new Date(it.date)>new Date()?'<span style="font-size:10px;color:var(--warn);">⏳ future — not counted yet</span>':''}
     </div>`;
@@ -1444,22 +1478,7 @@ function copyAllocPrompt(){
   const btn=event.target;btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy to clipboard',2000);
 }
 
-// ── QUICK ADD TICKER (Dashboard) ──────────────────────────────────────────────
-function quickAddTicker(){
-  const tk=(document.getElementById('qt-ticker').value||'').trim().toUpperCase();
-  const nm=document.getElementById('qt-name').value.trim();
-  const sh=parseFloat(document.getElementById('qt-shares').value)||0;
-  const bp=parseFloat(document.getElementById('qt-buy').value)||0;
-  const acct=document.getElementById('qt-acct').value;
-  if(!tk||!sh||!bp){document.getElementById('qt-msg').textContent='Please fill in ticker, shares, and buy price.';return;}
-  const today=new Date().toISOString().split('T')[0];
-  stocks.push({id:nsid++,ticker:tk,name:nm||tk,shares:sh,buyPrice:bp,account:acct,priceHistory:[{date:today,price:bp}]});
-  sSt(stocks);
-  ['qt-ticker','qt-name','qt-shares','qt-buy'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('qt-msg').textContent=`✓ ${tk} added to ${acct} — also export to CSV to sync with Excel`;
-  document.getElementById('ds-st').textContent=stocks.length;
-  setTimeout(()=>document.getElementById('qt-msg').textContent='',4000);
-}
+// quickAddTicker removed — use Stock Portfolio page add form instead
 
 // ── EXCEL CSV SYNC ────────────────────────────────────────────────────────────
 function exportStocksCSV(){
@@ -1505,11 +1524,20 @@ function importStocksCSV(input){
 
 let shc=null;
 function addStock(){
-  const tk=document.getElementById('nst').value.trim().toUpperCase(),nm=document.getElementById('nsn').value.trim(),sh=parseFloat(document.getElementById('nssh').value)||0,bp=parseFloat(document.getElementById('nsbp').value)||0;
-  if(!tk||!sh||!bp){alert('Fill in ticker, shares, and buy price.');return;}
+  const tk=document.getElementById('nst').value.trim().toUpperCase();
+  const nm=document.getElementById('nsn').value.trim();
+  const sh=parseFloat(document.getElementById('nssh').value)||0;
+  const bp=parseFloat(document.getElementById('nsbp').value)||0;
+  const acct=(document.getElementById('nst-acct')||{}).value||'Roth IRA';
+  if(!tk){const s=document.getElementById('nst-status');if(s){s.textContent='⚠ Ticker required';s.style.color='var(--danger)';}return;}
+  if(!sh||!bp){const s=document.getElementById('nst-status');if(s){s.textContent='⚠ Enter shares and buy price';s.style.color='var(--danger)';}return;}
   const today=new Date().toISOString().split('T')[0];
-  stocks.push({id:nsid++,ticker:tk,name:nm||tk,shares:sh,buyPrice:bp,priceHistory:[{date:today,price:bp}]});
-  sSt(stocks);['nst','nsn','nssh','nsbp'].forEach(id=>document.getElementById(id).value='');
+  stocks.push({id:nsid++,ticker:tk,name:nm||tk,shares:sh,buyPrice:bp,account:acct,priceHistory:[{date:today,price:bp}]});
+  sSt(stocks);
+  ['nst','nsn','nssh','nsbp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const s=document.getElementById('nst-status');
+  if(s){s.textContent=`✓ ${tk} added to ${acct}`;s.style.color='var(--accent)';}
+  setTimeout(()=>{if(s)s.textContent='';},3000);
   rStocks();
 }
 function updSP(id,val){
@@ -1563,6 +1591,8 @@ function rStocks(){
   if(shc)shc.destroy();
   const ad=[...new Set(stocks.flatMap(s=>s.priceHistory.map(x=>x.date)))].sort();
   if(ad.length){const pv=ad.map(date=>stocks.reduce((sum,s)=>{const e=s.priceHistory.slice().reverse().find(x=>x.date<=date);return sum+(e?e.price*s.shares:s.buyPrice*s.shares);},0));shc=new Chart(document.getElementById('sthch'),{type:'line',data:{labels:ad,datasets:[{label:'Portfolio',data:pv,borderColor:'#3cefb0',backgroundColor:'rgba(60,239,176,0.07)',fill:true,tension:0.3,pointRadius:pv.length>5?0:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.parsed.y)}}},scales:{x:{ticks:{color:'#7a8499',font:{size:11},autoSkip:true,maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#7a8499',font:{size:11},callback:v=>fmt(v,true)},grid:{color:'rgba(255,255,255,0.04)'}}}}});}
+  // Wire ticker autofill on the add-stock form (safe: called after DOM is set)
+  setTimeout(()=>wireTickerAutofill('nst','nsn','nsbp','nst-status'), 50);
 }
 
 function rHist(){
@@ -1895,33 +1925,7 @@ function updateLiveTicker() {
   }).join('');
 }
 
-// ── Wire up auto-fill on the quick-add ticker widget (Dashboard) ──────────────
-// We need to do this after the DOM is ready, so we hook into rbudget/rdash
-const _origRdash = rdash;
-function rdash() {
-  _origRdash();
-  setTimeout(() => {
-    wireTickerAutofill('qt-ticker', 'qt-name', 'qt-buy', 'qt-status');
-  }, 100);
-}
-
-const _origRStocks = rStocks;
-function rStocks() {
-  _origRStocks();
-  setTimeout(() => wireTickerAutofill('nst', 'nsn', 'nsbp', 'nst-status'), 100);
-}
-
-// ── Add status spans to the DOM if missing ───────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // Quick-add ticker status label (inject after qt-buy input)
-  const qtBuy = document.getElementById('qt-buy');
-  if (qtBuy && !document.getElementById('qt-status')) {
-    const span = document.createElement('span');
-    span.id = 'qt-status';
-    span.style.cssText = 'font-size:11px;font-family:"DM Mono",monospace;grid-column:span 6;margin-top:2px;';
-    qtBuy.closest('.card')?.appendChild(span);
-  }
-});
+// Ticker autofill wired directly into rStocks — see function below
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // INIT
