@@ -182,6 +182,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .fdic-eta.safe{background:rgba(60,239,176,0.08);color:var(--accent);}
 .fdic-eta.soon{background:rgba(255,140,66,0.1);color:var(--warn);}
 .fdic-eta.now{background:rgba(255,92,92,0.1);color:var(--danger);}
+.pleg{display:flex;gap:12px;margin-bottom:12px;font-size:12px;color:var(--muted);flex-wrap:wrap;}
+.ld{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0;}
+.proj-tab{padding:7px 16px;border-radius:20px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted);transition:all 0.15s;}
+.proj-tab:hover{border-color:var(--accent);color:var(--accent);}
+.proj-tab.active{background:var(--accent);color:#0d0f12;border-color:var(--accent);font-weight:600;}
+.ai-loading{display:flex;align-items:center;gap:10px;padding:1rem;color:var(--muted);font-size:13px;}
+.ai-spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-result-card{background:var(--surface2);border-radius:var(--radius);padding:1.25rem;border:1px solid var(--border);}
+.ai-rec{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:1rem;}
+.ai-rec.buy{background:rgba(60,239,176,0.15);color:var(--accent);border:1px solid rgba(60,239,176,0.3);}
+.ai-rec.hold{background:rgba(78,158,255,0.15);color:var(--blue);border:1px solid rgba(78,158,255,0.3);}
+.ai-rec.avoid{background:rgba(255,92,92,0.15);color:var(--danger);border:1px solid rgba(255,92,92,0.3);}
+.ai-rec.watch{background:rgba(255,140,66,0.15);color:var(--warn);border:1px solid rgba(255,140,66,0.3);}
+.ai-section{margin-bottom:0.875rem;}
+.ai-section-title{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
+.ai-section-body{font-size:13px;line-height:1.6;color:var(--text);}
+.alloc-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.alloc-ticker{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--accent);min-width:70px;}
+.alloc-bar-bg{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.alloc-bar-fill{height:100%;border-radius:4px;}
+.alloc-pct{font-family:'DM Mono',monospace;font-size:12px;min-width:45px;text-align:right;}
 ::-webkit-scrollbar{width:4px;height:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
 </style>
 </head>
@@ -235,6 +257,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="sc"><div class="sl">Net Savings</div><div class="sv b" id="ds-s">—</div></div>
         <div class="sc"><div class="sl">Stocks tracked</div><div class="sv p" id="ds-st">—</div></div>
       </div>
+      <!-- Quick add ticker -->
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="ch" style="margin-bottom:10px;"><span class="ct">Quick add ticker</span><span style="font-size:11px;color:var(--muted);">Adds to Stock Portfolio + syncs to Excel</span></div>
+        <div style="display:grid;grid-template-columns:120px 1fr 100px 110px 110px auto;gap:8px;align-items:end;">
+          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Ticker</label>
+            <input type="text" id="qt-ticker" placeholder="SCHB" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:14px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"></div>
+          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Company name</label>
+            <input type="text" id="qt-name" placeholder="Schwab US Broad Market" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Shares</label>
+            <input type="number" id="qt-shares" placeholder="12" min="0" step="0.001" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;text-align:right;"></div>
+          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Buy price ($)</label>
+            <input type="number" id="qt-buy" placeholder="56.00" min="0" step="0.01" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;text-align:right;"></div>
+          <div><label style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:4px;">Account</label>
+            <select id="qt-acct" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"><option>Roth IRA</option><option>US Stocks</option><option>ETFs</option><option>International</option><option>Crypto</option></select></div>
+          <button class="sbtn" onclick="quickAddTicker()" style="height:34px;padding:0 14px;font-size:12px;">Add ↗</button>
+        </div>
+        <div id="qt-msg" style="font-size:12px;color:var(--accent);margin-top:8px;min-height:16px;"></div>
+      </div>
       <div class="tc">
         <div class="card"><div class="ch"><span class="ct">Income vs Expenses</span></div><div class="cw"><canvas id="dch1"></canvas></div></div>
         <div class="card"><div class="ch"><span class="ct">Savings Rate</span></div><div class="cw"><canvas id="dch2"></canvas></div></div>
@@ -251,29 +291,88 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
 
     <div class="page" id="page-projections">
-      <div class="ph"><h1>Wealth Projections</h1><p>Roth IRA + HYSA growth to age 65</p></div>
-      <div class="card"><div class="ch"><span class="ct">Roth IRA settings</span></div>
-        <div class="cg3">
-          <div class="ci" style="grid-column:span 1;">
-            <label>Contribute until age: <span id="sav" style="color:var(--accent);font-family:'DM Mono',monospace;">35</span></label>
-            <input type="range" id="stopAge" min="19" max="64" step="1" value="35" style="width:100%;accent-color:var(--accent);margin-top:8px;" oninput="document.getElementById('sav').textContent=this.value;renderProj();">
+      <div class="ph"><h1>Wealth Projections</h1><p>Stochastic Monte Carlo simulation — Roth IRA + HYSA to age 65</p></div>
+
+      <!-- Projection tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:1.25rem;">
+        <button class="proj-tab active" id="ptab-mc" onclick="switchProjTab('mc')">Monte Carlo</button>
+        <button class="proj-tab" id="ptab-ai" onclick="switchProjTab('ai')">AI Stock Analyzer</button>
+        <button class="proj-tab" id="ptab-alloc" onclick="switchProjTab('alloc')">Allocation Optimizer</button>
+      </div>
+
+      <!-- MONTE CARLO TAB -->
+      <div id="ptab-mc-content">
+        <div class="card"><div class="ch"><span class="ct">Simulation settings</span></div>
+          <div class="cg3">
+            <div class="ci" style="grid-column:span 1;">
+              <label>Contribute until age: <span id="sav" style="color:var(--accent);font-family:'DM Mono',monospace;">35</span></label>
+              <input type="range" id="stopAge" min="19" max="64" step="1" value="35" style="width:100%;accent-color:var(--accent);margin-top:8px;" oninput="document.getElementById('sav').textContent=this.value;renderProj();">
+            </div>
+            <div class="ci"><label>Expected annual return (μ)</label><select id="mrate" onchange="renderProj()"><option value="0.07" selected>7% — historical avg</option><option value="0.06">6% — conservative</option><option value="0.08">8% — optimistic</option><option value="0.10">10% — aggressive</option></select></div>
+            <div class="ci"><label>Annual contribution</label><select id="rcon" onchange="renderProj()"><option value="7000" selected>$7,000 (max)</option><option value="5000">$5,000</option><option value="3000">$3,000</option></select></div>
+            <div class="ci"><label>Volatility σ (annual)</label><select id="sigma" onchange="renderProj()"><option value="0.12">12% — low (bond-heavy)</option><option value="0.18" selected>18% — moderate (index)</option><option value="0.25">25% — high (growth)</option><option value="0.35">35% — very high (speculative)</option></select></div>
+            <div class="ci"><label>Simulations</label><select id="nsims" onchange="renderProj()"><option value="200">200 — fast</option><option value="500" selected>500 — standard</option><option value="1000">1,000 — precise</option></select></div>
+            <div class="ci"><label>Show bands</label><select id="showbands" onchange="renderProj()"><option value="all" selected>P10 / P25 / P50 / P75 / P90</option><option value="wide">P10 / P50 / P90 only</option><option value="median">Median only</option></select></div>
           </div>
-          <div class="ci"><label>Market return</label><select id="mrate" onchange="renderProj()"><option value="0.07" selected>7% — historical avg</option><option value="0.06">6% — conservative</option><option value="0.08">8% — optimistic</option></select></div>
-          <div class="ci"><label>Annual contribution</label><select id="rcon" onchange="renderProj()"><option value="7000" selected>$7,000 (max)</option><option value="5000">$5,000</option><option value="3000">$3,000</option></select></div>
+        </div>
+        <div class="sg">
+          <div class="sc"><div class="sl">Median (P50) at 65</div><div class="sv g" id="pr">—</div></div>
+          <div class="sc"><div class="sl">Bear case (P10)</div><div class="sv d" id="p10v">—</div></div>
+          <div class="sc"><div class="sl">Bull case (P90)</div><div class="sv p" id="p90v">—</div></div>
+          <div class="sc"><div class="sl">Prob. above $1M</div><div class="sv b" id="pmill">—</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">Stochastic growth — Geometric Brownian Motion</span><span style="font-size:11px;color:var(--muted);">Roth IRA only · shaded bands = probability range</span></div>
+          <div id="mcleg" style="display:flex;gap:12px;margin-bottom:10px;font-size:11px;color:var(--muted);flex-wrap:wrap;"></div>
+          <div class="cw" style="height:340px;"><canvas id="pch"></canvas></div>
+        </div>
+        <div class="card"><div class="ch"><span class="ct">HYSA deterministic growth</span></div>
+          <div class="pleg" id="pleg"></div>
+          <div class="cw" style="height:200px;"><canvas id="hysach2"></canvas></div>
+        </div>
+        <div class="card"><div class="ch"><span class="ct">Year by year (median path)</span></div>
+          <div class="ts"><table class="dt"><thead><tr id="pthead"></tr></thead><tbody id="ptbody"></tbody></table></div>
         </div>
       </div>
-      <div class="sg">
-        <div class="sc"><div class="sl">Roth at 65</div><div class="sv g" id="pr">—</div></div>
-        <div class="sc"><div class="sl">All HYSAs at 65</div><div class="sv b" id="ph2">—</div></div>
-        <div class="sc"><div class="sl">Total wealth at 65</div><div class="sv" id="pt">—</div></div>
-        <div class="sc"><div class="sl">HYSA deposited</div><div class="sv w" id="pd">—</div></div>
+
+      <!-- AI STOCK ANALYZER TAB -->
+      <div id="ptab-ai-content" style="display:none;">
+        <div class="card">
+          <div class="ch"><span class="ct">AI Stock Analysis</span><span style="font-size:11px;color:var(--muted);">Powered by Claude — enter any ticker</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:1rem;">
+            <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Ticker symbol</label>
+              <input type="text" id="ai-ticker" placeholder="e.g. SCHB, NVDA, VTI" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-size:14px;color:var(--accent);font-family:'DM Mono',monospace;outline:none;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"></div>
+            <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Account type</label>
+              <select id="ai-acct" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"><option>Roth IRA (long-term growth)</option><option>Taxable brokerage</option><option>Short-term trade (1-2yr)</option><option>Speculative position</option></select></div>
+            <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">Your context</label>
+              <input type="text" id="ai-ctx" placeholder="e.g. 18yr old, $7k Roth, already own SCHB" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+            <button class="sbtn" onclick="runAIAnalysis()" id="ai-btn" style="height:38px;padding:0 20px;">Analyze ↗</button>
+          </div>
+          <div id="ai-result" style="min-height:120px;"></div>
+        </div>
+        <div class="card" id="ai-prompt-card" style="display:none;">
+          <div class="ch"><span class="ct">Generated Claude prompt</span><span style="font-size:11px;color:var(--muted);">Copy this and paste into any Claude conversation</span></div>
+          <pre id="ai-prompt-text" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);white-space:pre-wrap;overflow-x:auto;line-height:1.6;"></pre>
+          <button onclick="copyPrompt()" style="margin-top:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:7px 16px;font-size:12px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">Copy prompt to clipboard</button>
+        </div>
       </div>
-      <div class="card"><div class="ch"><span class="ct">Growth curves</span></div>
-        <div class="pleg" id="pleg"></div>
-        <div class="cw" style="height:320px;"><canvas id="pch"></canvas></div>
-      </div>
-      <div class="card"><div class="ch"><span class="ct">Year by year</span></div>
-        <div class="ts"><table class="dt"><thead><tr id="pthead"></tr></thead><tbody id="ptbody"></tbody></table></div>
+
+      <!-- ALLOCATION OPTIMIZER TAB -->
+      <div id="ptab-alloc-content" style="display:none;">
+        <div class="card">
+          <div class="ch"><span class="ct">Portfolio allocation analysis</span><span style="font-size:11px;color:var(--muted);">Based on your current stock holdings</span></div>
+          <div id="alloc-holdings" style="margin-bottom:1rem;"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;">
+            <button class="sbtn" onclick="runAllocAnalysis()" id="alloc-btn">Run AI analysis ↗</button>
+            <button onclick="genAllocPrompt()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 16px;font-size:13px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">Generate Claude prompt</button>
+          </div>
+          <div id="alloc-result" style="min-height:80px;"></div>
+        </div>
+        <div class="card" id="alloc-prompt-card" style="display:none;">
+          <div class="ch"><span class="ct">Allocation analysis prompt</span></div>
+          <pre id="alloc-prompt-text" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);white-space:pre-wrap;overflow-x:auto;line-height:1.6;"></pre>
+          <button onclick="copyAllocPrompt()" style="margin-top:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:7px 16px;font-size:12px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">Copy to clipboard</button>
+        </div>
       </div>
     </div>
 
@@ -285,7 +384,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
 
     <div class="page" id="page-stocks">
-      <div class="ph"><h1>Stock Portfolio</h1><p>Track holdings — log prices manually to see trends and get alerts</p></div>
+      <div class="ph"><h1>Stock Portfolio</h1><p>Track holdings — log prices, sync with Excel, get AI alerts</p></div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
+        <span style="font-size:12px;color:var(--muted);">Excel sync:</span>
+        <button onclick="exportStocksCSV()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 12px;font-size:12px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">↓ Export to CSV</button>
+        <label style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 12px;font-size:12px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">↑ Import from CSV<input type="file" accept=".csv" onchange="importStocksCSV(this)" style="display:none;"></label>
+        <span style="font-size:11px;color:var(--muted);">Export/import matches the Price Log sheet in FinTrack_Stock_Tracker.xlsx</span>
+      </div>
       <div class="asf">
         <div class="ct" style="margin-bottom:12px;">Add a stock</div>
         <div class="asg">
@@ -685,26 +790,337 @@ function rHsum(){
   el.innerHTML=`<div><div class="fs">Accounts</div><div style="font-size:20px;font-weight:600;font-family:'DM Mono',monospace;color:var(--purple);">${hysa.length}</div></div><div><div class="fs">Total balance now</div><div style="font-size:20px;font-weight:600;font-family:'DM Mono',monospace;color:var(--accent);">${fmt(totalBal)}</div></div><div><div class="fs">Avg rate</div><div style="font-size:20px;font-weight:600;font-family:'DM Mono',monospace;color:var(--blue);">${(avg*100).toFixed(2)}%</div></div><div><div class="fs">Combined at 65</div><div style="font-size:20px;font-weight:600;font-family:'DM Mono',monospace;color:var(--warn);">${fmt(at65)}</div></div>`;
 }
 
-let pc=null;
+// ── PROJECTION TABS ──────────────────────────────────────────────────────────
+function switchProjTab(tab){
+  ['mc','ai','alloc'].forEach(t=>{
+    document.getElementById('ptab-'+t).className='proj-tab'+(t===tab?' active':'');
+    document.getElementById('ptab-'+t+'-content').style.display=t===tab?'block':'none';
+  });
+  if(tab==='alloc') renderAllocPanel();
+}
+
+// ── MONTE CARLO (Geometric Brownian Motion) ───────────────────────────────────
+function gaussianRandom(){
+  let u=0,v=0;
+  while(u===0)u=Math.random();while(v===0)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+
+function runMonteCarlo(mu,sigma,rc,sa,nsims){
+  const S=18,E=65,dt=1;
+  const years=E-S+1;
+  const paths=[];
+  for(let s=0;s<nsims;s++){
+    let bal=0;const path=[0];
+    for(let yr=1;yr<years;yr++){
+      const age=S+yr;
+      const drift=(mu-0.5*sigma*sigma)*dt;
+      const diffusion=sigma*Math.sqrt(dt)*gaussianRandom();
+      bal=bal*Math.exp(drift+diffusion);
+      if(age<=sa) bal+=rc;
+      path.push(Math.max(0,Math.round(bal)));
+    }
+    paths.push(path);
+  }
+  return paths;
+}
+
+function percentile(paths,yearIdx,p){
+  const vals=paths.map(path=>path[yearIdx]).sort((a,b)=>a-b);
+  const idx=Math.max(0,Math.min(vals.length-1,Math.floor(p/100*vals.length)));
+  return vals[idx];
+}
+
+let pc=null, hc2=null;
 function renderProj(){
-  const sa=parseInt(document.getElementById('stopAge').value),mr=parseFloat(document.getElementById('mrate').value),rc=parseInt(document.getElementById('rcon').value),S=18,E=65;
-  let roth=0;const rv=[],ages=[];
-  for(let age=S;age<=E;age++){roth=roth*(1+mr);if(age<=sa)roth+=rc;ages.push(age);rv.push(Math.round(roth));}
+  const sa=parseInt(document.getElementById('stopAge').value);
+  const mr=parseFloat(document.getElementById('mrate').value);
+  const rc=parseInt(document.getElementById('rcon').value);
+  const sigma=parseFloat(document.getElementById('sigma').value);
+  const nsims=parseInt(document.getElementById('nsims').value);
+  const bandMode=document.getElementById('showbands').value;
+  const S=18,E=65;
+  const ages=Array.from({length:E-S+1},(_,i)=>S+i);
+
+  // Run Monte Carlo
+  const paths=runMonteCarlo(mr,sigma,rc,sa,nsims);
+
+  // Compute percentile bands
+  const p10=ages.map((_,i)=>percentile(paths,i,10));
+  const p25=ages.map((_,i)=>percentile(paths,i,25));
+  const p50=ages.map((_,i)=>percentile(paths,i,50));
+  const p75=ages.map((_,i)=>percentile(paths,i,75));
+  const p90=ages.map((_,i)=>percentile(paths,i,90));
+
+  // Stats
+  const finalVals=paths.map(p=>p[p.length-1]);
+  const pMillCount=finalVals.filter(v=>v>=1000000).length;
+  document.getElementById('pr').textContent=fmt(p50[p50.length-1]);
+  document.getElementById('p10v').textContent=fmt(p10[p10.length-1]);
+  document.getElementById('p90v').textContent=fmt(p90[p90.length-1]);
+  document.getElementById('pmill').textContent=Math.round(pMillCount/nsims*100)+'%';
+
+  // Legend
+  const leg=document.getElementById('mcleg');
+  const bands={all:[{c:'rgba(60,239,176,0.12)',l:'P90 (bull case)'},
+                    {c:'rgba(60,239,176,0.20)',l:'P75'},
+                    {c:'rgba(60,239,176,0.35)',l:'P50 median'},
+                    {c:'rgba(78,158,255,0.20)',l:'P25'},
+                    {c:'rgba(78,158,255,0.12)',l:'P10 (bear case)'}],
+               wide:[{c:'rgba(60,239,176,0.12)',l:'P90'},{c:'rgba(60,239,176,0.30)',l:'P50 median'},{c:'rgba(78,158,255,0.12)',l:'P10'}],
+               median:[{c:'rgba(60,239,176,0.30)',l:'P50 median'}]};
+  leg.innerHTML=(bands[bandMode]||bands.all).map(b=>`<span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:8px;border-radius:2px;background:${b.c};border:1px solid rgba(255,255,255,0.1);display:inline-block;"></span>${b.l}</span>`).join('');
+
+  // Build Chart.js datasets (filled bands using stacked fill trick)
+  const baseDs={tension:0.3,pointRadius:0,borderWidth:0,fill:true};
+  let ds=[];
+  if(bandMode==='all'||bandMode==='wide'){
+    ds.push({...baseDs,data:p10,backgroundColor:'rgba(78,158,255,0.10)',borderColor:'transparent',fill:false});
+    if(bandMode==='all')ds.push({...baseDs,data:p25,backgroundColor:'rgba(78,158,255,0.15)',fill:'-1'});
+    ds.push({...baseDs,data:p50,backgroundColor:'rgba(60,239,176,0.20)',fill:bandMode==='all'?'-1':'-1',borderColor:'rgba(60,239,176,0.9)',borderWidth:2});
+    if(bandMode==='all')ds.push({...baseDs,data:p75,backgroundColor:'rgba(60,239,176,0.15)',fill:'-1'});
+    ds.push({...baseDs,data:p90,backgroundColor:'rgba(60,239,176,0.10)',fill:'-1'});
+  } else {
+    ds.push({...baseDs,data:p50,backgroundColor:'rgba(60,239,176,0.15)',borderColor:'rgba(60,239,176,0.9)',borderWidth:2,fill:true});
+  }
+
+  if(pc)pc.destroy();
+  pc=new Chart(document.getElementById('pch'),{type:'line',data:{labels:ages,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:c=>`Age ${c[0].label}`,label:c=>`${fmt(c.parsed.y)}`}}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:10,color:'#7a8499',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'Age',color:'#7a8499',font:{size:12}}},y:{ticks:{color:'#7a8499',font:{size:11},callback:v=>fmt(v,true)},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+
+  // HYSA chart (deterministic)
   const hd=hysa.map(h=>{let b=0;const v=[];for(let i=0;i<ages.length;i++){b=b*(1+h.rate)+h.annualDeposit;v.push(Math.round(b));}return v;});
   const ht=ages.map((_,i)=>hd.reduce((s,v)=>s+v[i],0));
-  const com=ages.map((_,i)=>rv[i]+ht[i]);
-  const dep=hysa.reduce((s,h)=>s+h.annualDeposit*(E-S+1),0);
-  document.getElementById('pr').textContent=fmt(rv[rv.length-1]);
-  document.getElementById('ph2').textContent=fmt(ht[ht.length-1]);
-  document.getElementById('pt').textContent=fmt(com[com.length-1]);
-  document.getElementById('pd').textContent='$'+dep.toLocaleString();
-  document.getElementById('pleg').innerHTML=`<span style="display:flex;align-items:center;gap:5px;"><span class="ld" style="background:#3cefb0;"></span>Roth (until ${sa})</span>`+hysa.map((h,i)=>`<span style="display:flex;align-items:center;gap:5px;"><span class="ld" style="background:${CC[i+1]||'#888'};"></span>${h.ticker}</span>`).join('')+`<span style="display:flex;align-items:center;gap:5px;"><span class="ld" style="background:#aaa;opacity:0.5;"></span>Combined</span>`;
-  document.getElementById('pthead').innerHTML=`<th style="text-align:left;">Age</th><th>Roth</th>`+hysa.map(h=>`<th>${h.ticker}</th>`).join('')+`<th>HYSA Total</th><th>Total</th>`;
+  document.getElementById('pleg').innerHTML=hysa.map((h,i)=>`<span style="display:flex;align-items:center;gap:4px;"><span class="ld" style="background:${CC[i]||'#888'};"></span>${h.ticker}</span>`).join('')+`<span style="display:flex;align-items:center;gap:4px;"><span class="ld" style="background:#aaa;opacity:0.5;"></span>Combined</span>`;
+  if(hc2)hc2.destroy();
+  const hds=[...hysa.map((h,i)=>({label:h.ticker,data:hd[i],borderColor:CC[i]||'#888',backgroundColor:'transparent',fill:false,tension:0.3,pointRadius:0,borderWidth:1.5})),{label:'Combined',data:ht,borderColor:'rgba(255,255,255,0.3)',fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[4,3]}];
+  hc2=new Chart(document.getElementById('hysach2'),{type:'line',data:{labels:ages,datasets:hds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.parsed.y)}}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:10,color:'#7a8499',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#7a8499',font:{size:11},callback:v=>fmt(v,true)},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+
+  // Year-by-year table
+  document.getElementById('pthead').innerHTML=`<th style="text-align:left;">Age</th><th>P10</th><th>P50 Median</th><th>P90</th><th>HYSA Total</th>`;
   const tb=document.getElementById('ptbody');tb.innerHTML='';
-  ages.forEach((_,i)=>{const tr=document.createElement('tr');if(ages[i]===65)tr.style.color='var(--accent)';tr.innerHTML=`<td>${ages[i]}</td><td>${fmt(rv[i])}</td>`+hd.map((v,hi)=>`<td style="color:${CC[hi+1]||'#888'};">${fmt(v[i])}</td>`).join('')+`<td class="b">${fmt(ht[i])}</td><td style="font-weight:600;">${fmt(com[i])}</td>`;tb.appendChild(tr);});
-  const ds=[{label:'Roth',data:rv,borderColor:'#3cefb0',backgroundColor:'rgba(60,239,176,0.06)',fill:true,tension:0.3,pointRadius:0,borderWidth:2},...hysa.map((h,i)=>({label:h.ticker,data:hd[i],borderColor:CC[i+1]||'#888',backgroundColor:'transparent',fill:false,tension:0.3,pointRadius:0,borderWidth:1.5})),{label:'Total',data:com,borderColor:'rgba(255,255,255,0.2)',backgroundColor:'transparent',fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[5,3]}];
-  if(pc)pc.destroy();
-  pc=new Chart(document.getElementById('pch'),{type:'line',data:{labels:ages,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.parsed.y)}}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:10,color:'#7a8499',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'Age',color:'#7a8499',font:{size:12}}},y:{ticks:{color:'#7a8499',font:{size:11},callback:v=>fmt(v,true)},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+  ages.forEach((_,i)=>{const tr=document.createElement('tr');if(ages[i]===65)tr.style.color='var(--accent)';tr.innerHTML=`<td>${ages[i]}</td><td class="d">${fmt(p10[i])}</td><td style="font-weight:500;">${fmt(p50[i])}</td><td class="p">${fmt(p90[i])}</td><td class="b">${fmt(ht[i])}</td>`;tb.appendChild(tr);});
+}
+
+// ── AI STOCK ANALYZER ─────────────────────────────────────────────────────────
+async function runAIAnalysis(){
+  const ticker=(document.getElementById('ai-ticker').value||'').trim().toUpperCase();
+  const acct=document.getElementById('ai-acct').value;
+  const ctx=document.getElementById('ai-ctx').value.trim();
+  if(!ticker){document.getElementById('ai-result').innerHTML='<p style="color:var(--warn);font-size:13px;">Please enter a ticker symbol.</p>';return;}
+
+  const btn=document.getElementById('ai-btn');
+  btn.disabled=true; btn.textContent='Analyzing...';
+  document.getElementById('ai-result').innerHTML=`<div class="ai-loading"><div class="ai-spinner"></div>Running hybrid analysis on ${ticker}...</div>`;
+  document.getElementById('ai-prompt-card').style.display='none';
+
+  const portfolioContext=stocks.length?`Current portfolio: ${stocks.map(s=>s.ticker).join(', ')}. `:'No existing holdings. ';
+  const prompt=buildStockPrompt(ticker,acct,ctx,portfolioContext);
+  document.getElementById('ai-prompt-text').textContent=prompt;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1200,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.filter(c=>c.type==='text').map(c=>c.text).join('')||'No response.';
+    renderAIResult(ticker,text);
+  }catch(e){
+    document.getElementById('ai-result').innerHTML=`<p style="color:var(--danger);font-size:13px;">API error — copy the prompt below and paste into Claude.ai instead.</p>`;
+  }
+  document.getElementById('ai-prompt-card').style.display='block';
+  btn.disabled=false; btn.textContent='Analyze ↗';
+}
+
+function buildStockPrompt(ticker,acct,ctx,portfolioCtx){
+  return `You are a financial analysis assistant. Analyze ${ticker} for a young investor (18 years old) for a ${acct}.
+
+${portfolioCtx}${ctx?'Additional context: '+ctx+'. ':''}
+
+Please provide a structured analysis with these exact sections:
+
+RECOMMENDATION: [Strong Buy / Buy / Hold / Watch / Avoid]
+OVERVIEW: [2-3 sentences on what this security is and its core business/strategy]
+RISK_FACTORS: [3 key risks, one sentence each, separated by | character]
+GROWTH_POTENTIAL: [2-3 sentences on growth thesis and catalysts]
+EXPENSE_RATIO_OR_FEES: [if ETF/fund, state expense ratio; if stock, state P/E and forward P/E if known]
+ALLOCATION_SUGGESTION: [suggested % of portfolio for this security type and age, e.g. "5-10% of Roth IRA"]
+VERDICT: [2-3 sentence plain-English conclusion — is this a good fit for an 18-year-old Roth IRA?]
+
+Be direct, specific, and data-informed. Use actual figures where possible.`;
+}
+
+function renderAIResult(ticker,text){
+  const sections={};
+  const lines=text.split('\n');
+  lines.forEach(line=>{const m=line.match(/^([A-Z_]+):\s*(.+)/);if(m)sections[m[1]]=m[2].trim();});
+  const rec=sections.RECOMMENDATION||'';
+  const recClass=rec.toLowerCase().includes('strong buy')||rec.toLowerCase().includes('buy')?'buy':rec.toLowerCase().includes('hold')?'hold':rec.toLowerCase().includes('avoid')?'avoid':'watch';
+  const risks=(sections.RISK_FACTORS||'').split('|').filter(Boolean);
+  document.getElementById('ai-result').innerHTML=`
+    <div class="ai-result-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <span style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--accent);">${ticker}</span>
+        <span class="ai-rec ${recClass}">${rec||'—'}</span>
+      </div>
+      <div class="ai-section"><div class="ai-section-title">Overview</div><div class="ai-section-body">${sections.OVERVIEW||'—'}</div></div>
+      <div class="ai-section"><div class="ai-section-title">Key risk factors</div><ul style="padding-left:1.2rem;margin:0;">${risks.map(r=>`<li style="font-size:13px;color:var(--text);margin-bottom:4px;">${r.trim()}</li>`).join('')||'<li style="font-size:13px;color:var(--muted);">—</li>'}</ul></div>
+      <div class="ai-section"><div class="ai-section-title">Growth potential</div><div class="ai-section-body">${sections.GROWTH_POTENTIAL||'—'}</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:0.875rem;">
+        <div class="ai-section"><div class="ai-section-title">Fees / Valuation</div><div class="ai-section-body">${sections.EXPENSE_RATIO_OR_FEES||'—'}</div></div>
+        <div class="ai-section"><div class="ai-section-title">Suggested allocation</div><div class="ai-section-body" style="color:var(--accent);">${sections.ALLOCATION_SUGGESTION||'—'}</div></div>
+      </div>
+      <div style="background:var(--surface);border-radius:var(--radius-sm);padding:10px 12px;border-left:3px solid var(--accent);">
+        <div class="ai-section-title">Verdict for 18-year-old Roth IRA</div>
+        <div class="ai-section-body">${sections.VERDICT||text}</div>
+      </div>
+    </div>`;
+}
+
+function copyPrompt(){
+  navigator.clipboard.writeText(document.getElementById('ai-prompt-text').textContent);
+  const btn=event.target;btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy prompt to clipboard',2000);
+}
+
+// ── ALLOCATION OPTIMIZER ──────────────────────────────────────────────────────
+function renderAllocPanel(){
+  if(!stocks.length){
+    document.getElementById('alloc-holdings').innerHTML='<p style="font-size:13px;color:var(--muted);">No stocks in portfolio yet. Add some in Stock Portfolio.</p>';
+    return;
+  }
+  let totalVal=0;
+  stocks.forEach(s=>{const cur=s.priceHistory.length?s.priceHistory[s.priceHistory.length-1].price:s.buyPrice;totalVal+=cur*s.shares;});
+  const html=stocks.map((s,i)=>{
+    const cur=s.priceHistory.length?s.priceHistory[s.priceHistory.length-1].price:s.buyPrice;
+    const val=cur*s.shares;const pct=totalVal>0?(val/totalVal*100):0;
+    const col=CC[i%CC.length];
+    return `<div class="alloc-row"><span class="alloc-ticker">${s.ticker}</span><div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:${pct.toFixed(1)}%;background:${col};"></div></div><span class="alloc-pct" style="color:${col};">${pct.toFixed(1)}%</span><span style="font-size:11px;color:var(--muted);min-width:70px;text-align:right;">${fmt(val)}</span></div>`;
+  }).join('');
+  document.getElementById('alloc-holdings').innerHTML=html;
+}
+
+async function runAllocAnalysis(){
+  const btn=document.getElementById('alloc-btn');
+  btn.disabled=true; btn.textContent='Analyzing...';
+  document.getElementById('alloc-result').innerHTML=`<div class="ai-loading"><div class="ai-spinner"></div>Running allocation analysis...</div>`;
+  const prompt=buildAllocPrompt();
+  document.getElementById('alloc-prompt-text').textContent=prompt;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const text=data.content?.filter(c=>c.type==='text').map(c=>c.text).join('')||'No response.';
+    document.getElementById('alloc-result').innerHTML=`<div class="ai-result-card"><div class="ai-section-body" style="white-space:pre-wrap;">${text}</div></div>`;
+  }catch(e){
+    document.getElementById('alloc-result').innerHTML='<p style="color:var(--danger);font-size:13px;">API error — use the prompt below instead.</p>';
+  }
+  document.getElementById('alloc-prompt-card').style.display='block';
+  btn.disabled=false; btn.textContent='Run AI analysis ↗';
+}
+
+function buildAllocPrompt(){
+  const now=new Date().toLocaleDateString();
+  let totalCost=0,totalVal=0;
+  const rows=stocks.map(s=>{
+    const cur=s.priceHistory.length?s.priceHistory[s.priceHistory.length-1].price:s.buyPrice;
+    const cost=s.buyPrice*s.shares,val=cur*s.shares;
+    totalCost+=cost;totalVal+=val;
+    return `${s.ticker}: ${s.shares} shares @ $${s.buyPrice} buy price, current $${cur.toFixed(2)}, value $${val.toFixed(2)}`;
+  }).join('\n');
+  const gainLoss=((totalVal-totalCost)/totalCost*100).toFixed(1);
+  return `You are a portfolio advisor for an 18-year-old investor with a Roth IRA. Today is ${now}.
+
+CURRENT HOLDINGS:
+${rows}
+
+PORTFOLIO SUMMARY:
+Total cost basis: $${totalCost.toFixed(2)}
+Current value: $${totalVal.toFixed(2)}
+Overall gain/loss: ${gainLoss}%
+
+Please provide:
+1. CONCENTRATION RISK — identify any over-concentration (>30% in one position or sector)
+2. SECTOR ANALYSIS — identify sector exposures and any gaps
+3. CORRELATION — flag any highly correlated holdings that add redundancy
+4. REBALANCING SUGGESTIONS — specific suggested target allocations with reasoning (e.g. "SCHB 60%, SCHF 20%, CHPY 10%, cash 10%")
+5. MISSING DIVERSIFICATION — what asset classes or sectors are absent that might benefit a young investor?
+6. PRIORITY ACTIONS — top 3 concrete actions to improve this portfolio right now
+
+Be specific, direct, and use the actual ticker symbols throughout.`;
+}
+
+function genAllocPrompt(){
+  document.getElementById('alloc-prompt-text').textContent=buildAllocPrompt();
+  document.getElementById('alloc-prompt-card').style.display='block';
+}
+
+function copyAllocPrompt(){
+  navigator.clipboard.writeText(document.getElementById('alloc-prompt-text').textContent);
+  const btn=event.target;btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy to clipboard',2000);
+}
+
+// ── QUICK ADD TICKER (Dashboard) ──────────────────────────────────────────────
+function quickAddTicker(){
+  const tk=(document.getElementById('qt-ticker').value||'').trim().toUpperCase();
+  const nm=document.getElementById('qt-name').value.trim();
+  const sh=parseFloat(document.getElementById('qt-shares').value)||0;
+  const bp=parseFloat(document.getElementById('qt-buy').value)||0;
+  const acct=document.getElementById('qt-acct').value;
+  if(!tk||!sh||!bp){document.getElementById('qt-msg').textContent='Please fill in ticker, shares, and buy price.';return;}
+  const today=new Date().toISOString().split('T')[0];
+  stocks.push({id:nsid++,ticker:tk,name:nm||tk,shares:sh,buyPrice:bp,account:acct,priceHistory:[{date:today,price:bp}]});
+  sSt(stocks);
+  ['qt-ticker','qt-name','qt-shares','qt-buy'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('qt-msg').textContent=`✓ ${tk} added to ${acct} — also export to CSV to sync with Excel`;
+  document.getElementById('ds-st').textContent=stocks.length;
+  setTimeout(()=>document.getElementById('qt-msg').textContent='',4000);
+}
+
+// ── EXCEL CSV SYNC ────────────────────────────────────────────────────────────
+function exportStocksCSV(){
+  const header='Date,Market Sheet,Ticker,Price ($),Shares,Notes';
+  const rows=stocks.map(s=>{
+    const last=s.priceHistory.length?s.priceHistory[s.priceHistory.length-1]:{date:'',price:s.buyPrice};
+    return `${last.date},${s.account||'Roth IRA'},${s.ticker},${last.price},${s.shares},"${s.name}"`;
+  });
+  const csv=[header,...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`FinTrack_stocks_${new Date().toISOString().split('T')[0]}.csv`;a.click();
+}
+
+function importStocksCSV(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const lines=e.target.result.split('\n').slice(1).filter(l=>l.trim());
+    let added=0;
+    lines.forEach(line=>{
+      const parts=line.split(',');
+      if(parts.length<5)return;
+      const[date,acct,ticker,price,shares,name]=parts;
+      const tk=(ticker||'').trim().toUpperCase();const pr=parseFloat(price)||0;const sh=parseFloat(shares)||0;
+      if(!tk||!pr||!sh)return;
+      const existing=stocks.find(s=>s.ticker===tk);
+      if(existing){
+        const d=(date||'').trim();const p=pr;
+        const last=existing.priceHistory[existing.priceHistory.length-1];
+        if(!last||last.date!==d) existing.priceHistory.push({date:d,price:p});
+      } else {
+        stocks.push({id:nsid++,ticker:tk,name:(name||tk).replace(/"/g,'').trim(),shares:sh,buyPrice:pr,account:(acct||'').trim(),priceHistory:[{date:(date||'').trim(),price:pr}]});
+        added++;
+      }
+    });
+    sSt(stocks);rStocks();
+    alert(`Import complete. ${added} new tickers added, existing tickers updated.`);
+  };
+  reader.readAsText(file);
+  input.value='';
 }
 
 let shc=null;
