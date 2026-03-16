@@ -245,7 +245,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <button class="nav-item" onclick="showPage('stocks')"><svg class="ni" fill="none" viewBox="0 0 16 16"><path d="M2 11l3-4 2.5 2.5L11 5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Stock Portfolio</button>
     <button class="nav-item" onclick="showPage('history')"><svg class="ni" fill="none" viewBox="0 0 16 16"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>History</button>
     <button class="nav-item" onclick="showPage('settings')"><svg class="ni" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Settings</button>
+    <button class="nav-item" onclick="showPage('roadmap')"><svg class="ni" fill="none" viewBox="0 0 16 16"><path d="M2 8h12M10 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Roadmap</button>
     <div class="sb-user"><div class="sb-av" id="sbav">?</div><div><div class="sb-name" id="sbname">User</div><button class="sb-out" onclick="doLogout()">Sign out</button></div></div>
+    <div id="backend-indicator" title="Backend server status" style="font-size:10px;color:var(--muted);padding:4px 10px 8px;cursor:help;">🟡 Checking...</div>
   </aside>
   <main class="main">
 
@@ -378,13 +380,57 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
     <div class="page" id="page-hysa">
       <div class="ph"><h1>HYSA Accounts</h1><p>Manage savings accounts — FDIC insures $250k per bank. Slider goes to $100k/yr.</p></div>
-      <div style="background:rgba(78,158,255,0.08);border:1px solid rgba(78,158,255,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:1.25rem;font-size:13px;color:var(--blue);">Spread funds across different banks to stay under the <strong>$250,000 FDIC limit</strong> per bank. The FDIC bar shows projected balance at 65.</div>
+      <datalist id="hysa-datalist">
+  <option value="MARCUS">Marcus by Goldman Sachs — 4.50%</option>
+  <option value="SOFI">SoFi Savings — 4.60%</option>
+  <option value="ALLY">Ally Bank — 4.20%</option>
+  <option value="AMEX_SAV">Amex High Yield — 4.25%</option>
+  <option value="DISC_SAV">Discover Savings — 4.25%</option>
+  <option value="CAP1">Capital One 360 — 4.10%</option>
+  <option value="LEND">LendingClub LevelUp — 5.00%</option>
+  <option value="UFB">UFB Direct — 4.83%</option>
+  <option value="BETTR">Betterment Cash — 4.75%</option>
+  <option value="WFRT">Wealthfront Cash — 5.00%</option>
+  <option value="GL_FS">Greenlight Family Shield — 6.00%</option>
+  <option value="FIDO_CMA">Fidelity CMA — 4.96%</option>
+  <option value="TBILL_4W">T-Bills 4-week — 5.18%</option>
+  <option value="TBILL_13W">T-Bills 13-week — 5.12%</option>
+</datalist>
+<div style="background:rgba(78,158,255,0.08);border:1px solid rgba(78,158,255,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:1.25rem;font-size:13px;color:var(--blue);">
+  Spread funds across different banks to stay under the <strong>$250,000 FDIC limit</strong> per bank. 
+  Type a ticker (e.g. MARCUS, SOFI, UFB) to autofill rate and name from the rates database. 
+  <button onclick="showRatesTable()" style="background:none;border:1px solid var(--blue);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--blue);cursor:pointer;margin-left:6px;font-family:'DM Sans',sans-serif;">View all rates</button>
+</div>
+<div id="rates-popup" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1.25rem;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <span style="font-size:13px;font-weight:500;">HYSA Rate Comparison</span>
+    <button onclick="document.getElementById('rates-popup').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">×</button>
+  </div>
+  <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="border-bottom:1px solid var(--border);">
+      <th style="text-align:left;padding:5px 8px;color:var(--muted);font-size:10px;text-transform:uppercase;">Institution</th>
+      <th style="text-align:right;padding:5px 8px;color:var(--muted);font-size:10px;">APY</th>
+      <th style="text-align:center;padding:5px 8px;color:var(--muted);font-size:10px;">Compounding</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--muted);font-size:10px;">Notes</th>
+      <th style="text-align:center;padding:5px 8px;color:var(--muted);font-size:10px;">Use</th>
+    </tr></thead>
+    <tbody id="rates-table-body"></tbody>
+  </table></div>
+</div>
       <div class="hg" id="hcards"></div>
       <div class="card"><div class="fs" style="margin-bottom:12px;">Portfolio summary</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;" id="hsum"></div></div>
     </div>
 
     <div class="page" id="page-stocks">
-      <div class="ph"><h1>Stock Portfolio</h1><p>Track holdings — log prices, sync with Excel, get AI alerts</p></div>
+      <div class="ph"><h1>Stock Portfolio</h1><p>Track holdings — live prices via Yahoo Finance · log prices · sync with Excel</p></div>
+      <!-- Live ticker bar -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;margin-bottom:1rem;display:flex;align-items:center;gap:12px;overflow:hidden;">
+        <button id="live-toggle" onclick="toggleLive()" style="background:none;border:1px solid var(--accent);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">▶ Start live</button>
+        <span style="font-size:10px;color:var(--muted);white-space:nowrap;">2s refresh</span>
+        <div id="live-ticker-bar" style="overflow:hidden;white-space:nowrap;flex:1;">
+          <span style="font-size:11px;color:var(--muted);">Press Start live to begin fetching Yahoo Finance prices every 2 seconds</span>
+        </div>
+      </div>
       <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
         <span style="font-size:12px;color:var(--muted);">Excel sync:</span>
         <button onclick="exportStocksCSV()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 12px;font-size:12px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">↓ Export to CSV</button>
@@ -400,6 +446,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="asf2"><label>Buy price ($)</label><input type="number" id="nsbp" placeholder="56.00" min="0" step="0.01"></div>
           <button class="sbtn" onclick="addStock()" style="height:36px;padding:0 16px;">Add</button>
         </div>
+        <div style="font-size:11px;font-family:'DM Mono',monospace;min-height:16px;margin-top:4px;" id="nst-status"></div>
       </div>
       <div class="sg">
         <div class="sc"><div class="sl">Total invested</div><div class="sv b" id="sti">—</div></div>
@@ -437,6 +484,82 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="card"><div class="ct" style="margin-bottom:1rem;">Data</div>
             <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;">Data saves locally in your browser and persists between sessions.</p>
             <button onclick="exportData()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 16px;font-size:13px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">Export as JSON</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROADMAP -->
+    <div class="page" id="page-roadmap">
+      <div class="ph"><h1>Roadmap</h1><p>Planned features and version history for FinTrack</p></div>
+
+      <!-- Version history -->
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="ch"><span class="ct">Version history</span><span style="font-size:11px;color:var(--muted);">Current: v1.9.0-wip</span></div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          ${[
+            ['v1.9.0','WIP','Live Yahoo Finance price polling (2s), roadmap page, gyt() bug fix','var(--warn)'],
+            ['v1.8.0','Done','Budget recommendations, Excel stock tracker, GitHub repo scaffold','var(--accent)'],
+            ['v1.7.0','Done','HYSA compounding selector, current balance, FDIC timeline, savings buckets','var(--accent)'],
+            ['v1.6.0','Done','Login system, stock portfolio, settings page, 5 color themes','var(--accent)'],
+            ['v1.5.0','Done','Multi-HYSA accounts, FDIC tracking, ticker system','var(--accent)'],
+            ['v1.4.0','Done','Monte Carlo projections, AI stock analyzer, allocation optimizer','var(--accent)'],
+            ['v1.3.0','Done','Interactive Roth IRA compound growth charts','var(--accent)'],
+          ].map(([v,s,d,c])=>`
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+              <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);min-width:52px;">${v}</span>
+              <span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${c}20;color:${c};min-width:40px;text-align:center;">${s}</span>
+              <span style="font-size:13px;color:var(--text);">${d}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Upcoming features -->
+      <div class="two-col">
+        <div class="card">
+          <div class="ch"><span class="ct">In progress / next up</span></div>
+          ${[
+            ['🔄','Real-time WebSocket price feed','Replace polling with persistent connection for instant updates'],
+            ['📊','Dividend tracker','Log dividend payments, auto-calculate yield on cost, project annual income'],
+            ['🧾','Tax lot tracking','Track each purchase separately for FIFO/LIFO/SpecID tax optimization'],
+            ['📱','PWA support','Install as home screen app on iOS/Android, offline-first with service worker'],
+            ['🔔','Price alert notifications','Browser push notifications when a stock hits a target price or drops %'],
+            ['📤','Google Sheets sync','Two-way sync with a Google Sheet — edit either place and both update'],
+          ].map(([e,t,d])=>`
+            <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+              <span style="font-size:16px;flex-shrink:0;">${e}</span>
+              <div><div style="font-size:13px;font-weight:500;margin-bottom:2px;">${t}</div><div style="font-size:12px;color:var(--muted);">${d}</div></div>
+            </div>`).join('')}
+        </div>
+        <div>
+          <div class="card">
+            <div class="ch"><span class="ct">Backlog ideas</span></div>
+            ${[
+              ['🏦','Linked account import — Plaid or CSV bank statements'],
+              ['💳','Credit card tracker with statement date and APR warnings'],
+              ['🎓','College cost planner with financial aid estimator'],
+              ['🏠','Rent vs buy calculator with local market data'],
+              ['🌍','Currency converter for international holdings'],
+              ['🤝','Shared portfolio view — read-only link for advisor/parent'],
+              ['📈','Options chain viewer for covered calls (CHPY strategy)'],
+              ['📉','Drawdown calculator — max loss from peak for each holding'],
+              ['🧠','AI weekly summary — auto-generated digest of portfolio changes'],
+              ['🗓️','Contribution calendar — visual reminder of Roth IRA deadline'],
+            ].map(([e,t])=>`
+              <div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">
+                <span>${e}</span><span style="color:var(--muted);">${t}</span>
+              </div>`).join('')}
+          </div>
+          <div class="card" style="margin-top:0;">
+            <div class="ch"><span class="ct">GitHub branch status</span></div>
+            <div style="font-size:12px;display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;justify-content:space-between;"><span style="font-family:'DM Mono',monospace;color:var(--accent);">main</span><span style="color:var(--muted);">v1.8.0 — stable</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-family:'DM Mono',monospace;color:var(--warn);">feature/advanced-analytics</span><span style="color:var(--muted);">v1.9.0 — WIP</span></div>
+              <div style="margin-top:4px;padding:8px;background:var(--surface2);border-radius:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
+                git checkout feature/advanced-analytics<br>
+                git push origin feature/advanced-analytics
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -534,19 +657,82 @@ function fmt(n,sh){
 }
 function thd(){return hysa.reduce((s,h)=>s+(h.annualDeposit||0),0);}
 function ensureYear(y){
+  const today=new Date().toISOString().split('T')[0];
   if(!budgets[y])budgets[y]={
-    income:[{label:'Part-time wages',amount:8000},{label:'Trust distribution',amount:0}],
-    expenses:[{label:'Rent to Dad',amount:1200},{label:'Phone',amount:600},{label:'Food & groceries',amount:1500},{label:'Transportation',amount:800},{label:'Misc',amount:500}],
+    income:[
+      {label:'Part-time wages',amount:8000,type:'monthly',date:''},
+      {label:'Trust distribution',amount:0,type:'onetime',date:today}
+    ],
+    expenses:[
+      {label:'Rent to Dad',amount:1200,type:'monthly',date:''},
+      {label:'Phone',amount:600,type:'monthly',date:''},
+      {label:'Food & groceries',amount:1500,type:'monthly',date:''},
+      {label:'Transportation',amount:800,type:'monthly',date:''},
+      {label:'Misc',amount:500,type:'monthly',date:''}
+    ],
     roth:7000,
     savingsBuckets:[
-      {id:1,label:'Emergency Fund',target:5000,saved:0,color:'#3cefb0'},
-      {id:2,label:'Medical / Surgery Fund',target:3000,saved:0,color:'#4e9eff'},
-      {id:3,label:'Utilities Reserve',target:1200,saved:0,color:'#b78fff'}
+      {id:1,label:'Emergency Fund',target:5000,saved:0,color:'#3cefb0',tip:'3–6 months of expenses. Top priority.'},
+      {id:2,label:'Medical / Surgery Fund',target:3000,saved:0,color:'#4e9eff',tip:'$1k min. Aim for $5–10k for surgeries.'},
+      {id:3,label:'Utilities Reserve',target:1200,saved:0,color:'#b78fff',tip:'1–2 months of utility bills as buffer.'}
     ]
   };
   if(!budgets[y].savingsBuckets)budgets[y].savingsBuckets=[];
+  // Migrate old items missing type/date
+  const migrate=arr=>{if(!Array.isArray(arr))return;arr.forEach(it=>{if(!it.type)it.type='monthly';if(it.date===undefined)it.date='';});};
+  migrate(budgets[y].income); migrate(budgets[y].expenses);
+  // Migrate old buckets missing tip
+  budgets[y].savingsBuckets.forEach(k=>{if(!k.tip)k.tip='';});
 }
-function gyt(y){const b=budgets[y];if(!b)return null;const inc=b.income.reduce((s,i)=>s+(parseFloat(i.amount)||0),0),exp=b.expenses.reduce((s,i)=>s+(parseFloat(i.amount)||0),0),rot=parseFloat(b.roth)||0,hys=thd(),bkt=(b.savingsBuckets||[]).reduce((s,k)=>s+(parseFloat(k.saved)||0),0),net=inc-exp-rot-hys-bkt,rate=inc>0?Math.round(((rot+hys+bkt)/inc)*100):0;return{income:inc,expenses:exp,roth:rot,hysa:hys,buckets:bkt,net,rate};}
+
+// Helper: get effective annual amount for an item based on type and date
+function getEffectiveAmount(it){
+  const amt=parseFloat(it.amount)||0;
+  if(it.type==='monthly') return amt*12;
+  if(it.type==='onetime'){
+    if(!it.date) return amt;
+    const d=new Date(it.date); const now=new Date();
+    return d<=now ? amt : 0; // only count if date has passed
+  }
+  return amt;
+}
+
+// Helper: annual income total (for recommendation %s)
+function getAnnualIncome(){
+  const b=budgets[ay];
+  if(!b||!Array.isArray(b.income))return 0;
+  return b.income.reduce((s,it)=>s+getEffectiveAmount(it),0);
+}
+
+// Helper: YTD earned so far this year
+function getYTDIncome(){
+  const b=budgets[ay]; if(!b||!Array.isArray(b.income))return 0;
+  const now=new Date(); const monthsElapsed=now.getMonth()+1+(now.getDate()/30);
+  return b.income.reduce((s,it)=>{
+    const amt=parseFloat(it.amount)||0;
+    if(it.type==='monthly') return s+(amt*monthsElapsed);
+    if(it.type==='onetime'){ const d=it.date?new Date(it.date):null; return s+((!d||d<=now)?amt:0); }
+    return s+amt;
+  },0);
+}
+function gyt(y){
+  const b=budgets[y];
+  if(!b) return null;
+  const inc = Array.isArray(b.income) ? b.income.reduce((s,it)=>s+getEffectiveAmount(it), 0) : 0;
+  const exp = Array.isArray(b.expenses) ? b.expenses.reduce((s,it)=>s+getEffectiveAmount(it), 0) : 0;
+  const rot = parseFloat(b.roth)||0;
+  const hys = thd();
+  const bkt = Array.isArray(b.savingsBuckets) ? b.savingsBuckets.reduce((s,k)=>s+(parseFloat(k.saved)||0), 0) : 0;
+  const net = inc-exp-rot-hys-bkt;
+  const rate = inc>0 ? Math.round(((rot+hys+bkt)/inc)*100) : 0;
+  const ytd = Array.isArray(b.income) ? b.income.reduce((s,it)=>{
+    const amt=parseFloat(it.amount)||0;
+    if(it.type==='monthly'){const now=new Date();return s+(amt*(now.getMonth()+1+(now.getDate()/30)));}
+    if(it.type==='onetime'){const d=it.date?new Date(it.date):null;return s+((!d||d<=new Date())?amt:0);}
+    return s+amt;
+  },0) : 0;
+  return {income:inc, expenses:exp, roth:rot, hysa:hys, buckets:bkt, net, rate, ytd};
+}
 
 function applySettings(){
   const t=THEMES[settings.themeIdx||0];const r=document.documentElement.style;
@@ -611,6 +797,7 @@ function rbudget(){
       <div class="sbkt-grid" id="bktgrid"></div>
     </div>
     <div class="tbar" id="tbar"></div>
+    <div class="tbar" id="ytd-bar" style="display:none;margin-top:6px;"></div>
     <div class="srow"><span class="smsg" id="smsg">Saved!</span><button class="sbtn" onclick="saveBY()">Save budget</button></div>
   </div>`;
   rlines('income');rlines('expenses');rBuckets();updT();
@@ -635,37 +822,141 @@ function matchRule(label){
 function rlines(t){
   const el=document.getElementById(t==='income'?'ilines':'elines');if(!el)return;
   el.innerHTML='';
-  const inc=gyt(ay)?.income||0;
   const items=t==='income'?budgets[ay].income:budgets[ay].expenses;
+  const annualIncome=getAnnualIncome();
+  const today=new Date().toISOString().split('T')[0];
   items.forEach((it,i)=>{
     const d=document.createElement('div');
-    d.style.cssText='margin-bottom:8px;';
-    const rule=t==='expenses'?matchRule(it.label):null;
-    const income=Object.values(budgets[ay]?.income||[]).reduce?.(0,0)||budgets[ay]?.income?.reduce((s,x)=>s+(parseFloat(x.amount)||0),0)||0;
+    d.style.cssText='margin-bottom:10px;background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;border:1px solid var(--border);';
+    const effAmt=getEffectiveAmount(it);
+    const typeColor=it.type==='monthly'?'var(--accent)':(it.type==='capex'?'var(--warn)':'var(--blue)');
+    const typeLabel=t==='income'?(it.type==='monthly'?'Monthly':'One-time'):(it.type==='monthly'?'Monthly':'Capex / one-time');
+    // Row 1: label + amount
+    const row1=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <input class="lit" value="${it.label||''}" oninput="uLsafe('${t}',${i},'label',this.value);" onblur="rlines('${t}');" placeholder="${t==='income'?'Income source':'Expense name'}" style="flex:1;">
+      <input class="lin" type="number" value="${it.amount||''}" oninput="uLsafe('${t}',${i},'amount',this.value);" min="0" placeholder="0" style="width:100px;">
+      <button class="db" onclick="dL('${t}',${i})">×</button>
+    </div>`;
+    // Row 2: type toggle + date + effective annual amount
+    const typeOpts=t==='income'
+      ?`<option value="monthly" ${it.type==='monthly'?'selected':''}>Monthly</option><option value="onetime" ${it.type==='onetime'?'selected':''}>One-time</option>`
+      :`<option value="monthly" ${it.type==='monthly'?'selected':''}>Monthly</option><option value="capex" ${it.type==='capex'||it.type==='onetime'?'selected':''}>Capex / one-time</option>`;
+    const row2=`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <select style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:11px;color:${typeColor};font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;"
+        onchange="uLsafe('${t}',${i},'type',this.value);rlines('${t}');">
+        ${typeOpts}
+      </select>
+      <input type="date" value="${it.date||''}" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;outline:none;cursor:pointer;color-scheme:dark;"
+        onchange="uLsafe('${t}',${i},'date',this.value);"
+        placeholder="${today}">
+      ${effAmt>0?`<span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);">≈ ${fmt(effAmt)}/yr effective</span>`:''}
+      ${it.type!=='monthly'&&it.date&&new Date(it.date)>new Date()?'<span style="font-size:10px;color:var(--warn);">⏳ future — not counted yet</span>':''}
+    </div>`;
+    // Row 3: rec tip for expenses
     let recHtml='';
-    if(rule&&income>0){
-      const amt=parseFloat(it.amount)||0;
-      const actualPct=income>0?((amt/income)*100):0;
-      const [lo,hi]=rule.pct;
-      const ok=actualPct>=lo&&actualPct<=hi;
-      const over=actualPct>hi;
-      const status=ok?'✓':over?'↑':'↓';
-      const statusColor=ok?'var(--accent)':over?'var(--danger)':'var(--warn)';
-      recHtml=`<div style="display:flex;align-items:center;justify-content:space-between;margin-top:3px;padding:3px 6px;background:var(--surface);border-radius:4px;border-left:2px solid ${rule.color};">
-        <span style="font-size:10px;color:var(--muted);">${rule.label}: recommended ${lo}–${hi}% of income</span>
-        <span style="font-size:10px;font-family:'DM Mono',monospace;color:${statusColor};">${status} ${actualPct.toFixed(1)}% (${fmt(income*lo/100)}–${fmt(income*hi/100)})</span>
-      </div>`;
+    if(t==='expenses'){
+      const rule=matchRule(it.label||'');
+      if(rule&&annualIncome>0){
+        const actualPct=(effAmt/annualIncome)*100;
+        const[lo,hi]=rule.pct,ok=actualPct>=lo&&actualPct<=hi,over=actualPct>hi;
+        const status=ok?'✓':over?'↑ over':'↓ under';
+        const col=ok?'var(--accent)':over?'var(--danger)':'var(--warn)';
+        recHtml=`<div id="expenses_rec_${i}" style="margin-top:5px;display:flex;align-items:center;justify-content:space-between;padding:3px 7px;background:var(--surface);border-radius:4px;border-left:2px solid ${rule.color};">
+          <span style="font-size:10px;color:var(--muted);">${rule.label} — recommended ${lo}–${hi}%</span>
+          <span style="font-size:10px;font-family:'DM Mono',monospace;color:${col};">${status} ${actualPct.toFixed(1)}% · budget ${fmt(annualIncome*lo/100)}–${fmt(annualIncome*hi/100)}/yr</span>
+        </div>`;
+      } else {
+        recHtml=`<div id="expenses_rec_${i}"></div>`;
+      }
     }
-    d.innerHTML=`<div class="li"><input class="lit" value="${it.label}" oninput="uL('${t}',${i},'label',this.value);rlines('${t}');" placeholder="Description"><input class="lin" type="number" value="${it.amount}" oninput="uL('${t}',${i},'amount',this.value);rlines('${t}');" min="0"><button class="db" onclick="dL('${t}',${i})">×</button></div>${recHtml}`;
+    d.innerHTML=row1+row2+recHtml;
     el.appendChild(d);
   });
 }
 function uL(t,i,f,v){(t==='income'?budgets[ay].income:budgets[ay].expenses)[i][f]=f==='amount'?(parseFloat(v)||0):v;updT();}
+// Safe update that doesn't re-render the whole list (prevents stack overflow)
+function uLsafe(t,i,f,v){
+  const arr=t==='income'?budgets[ay].income:budgets[ay].expenses;
+  if(!arr[i])return;
+  arr[i][f]=f==='amount'?(parseFloat(v)||0):v;
+  updT();
+  // Only update rec tip for this specific row, not re-render whole list
+  const row=document.getElementById(t+'_rec_'+i);
+  if(row&&t==='expenses') updateRecTip(i, row);
+}
+function updateRecTip(i, tipEl){
+  if(!tipEl)return;
+  const it=budgets[ay].expenses[i]; if(!it)return;
+  const income=getAnnualIncome();
+  const rule=matchRule(it.label);
+  if(!rule||income<=0){tipEl.innerHTML='';return;}
+  const effAmt=getEffectiveAmount(it);
+  const actualPct=income>0?((effAmt/income)*100):0;
+  const[lo,hi]=rule.pct;
+  const ok=actualPct>=lo&&actualPct<=hi,over=actualPct>hi;
+  const status=ok?'✓':over?'↑':'↓';
+  const statusColor=ok?'var(--accent)':over?'var(--danger)':'var(--warn)';
+  tipEl.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 6px;background:var(--surface);border-radius:4px;border-left:2px solid ${rule.color};">
+    <span style="font-size:10px;color:var(--muted);">${rule.label}: rec ${lo}–${hi}% · ${income>0?'annual basis':'enter income'}</span>
+    <span style="font-size:10px;font-family:'DM Mono',monospace;color:${statusColor};">${status} ${actualPct.toFixed(1)}% (${fmt(income*lo/100)}–${fmt(income*hi/100)})</span>
+  </div>`;
+}
 function addL(t){(t==='income'?budgets[ay].income:budgets[ay].expenses).push({label:'',amount:0});rlines(t);updT();}
 function dL(t,i){(t==='income'?budgets[ay].income:budgets[ay].expenses).splice(i,1);rlines(t);updT();}
 
 const BKT_COLORS=['#3cefb0','#4e9eff','#ff8c42','#b78fff','#ff5c5c','#ffd166','#06d6a0','#f72585'];
 let nextBktId=10;
+
+// ── SAVINGS BUCKET HELPERS ────────────────────────────────────────────────────
+const BUCKET_TIPS = {
+  emergency: {keys:['emergency','emerg','rainy','safety'],
+    tip:'Rule: 3–6 months of total monthly expenses. First savings priority before anything else.',
+    multiplier:4, base:'monthly_expenses'},
+  medical: {keys:['medical','surgery','health','doctor','hospital','dental'],
+    tip:'Min $1,000. Ideally $3–10k. Covers deductibles, copays, and unexpected procedures.',
+    target:5000, base:'fixed'},
+  utilities: {keys:['utility','utilities','electric','water','internet','bill'],
+    tip:'1–2 months of utility costs as a buffer so a big bill never surprises you.',
+    multiplier:2, base:'utilities_monthly'},
+  car: {keys:['car','vehicle','auto','repair','maintenance'],
+    tip:'$500–$2,000 for repairs. Budget ~1% of car value per year for maintenance.',
+    target:1500, base:'fixed'},
+  travel: {keys:['travel','vacation','trip','flight'],
+    tip:'Set a per-trip goal (e.g. $1,500–$3,000) and save monthly toward it.',
+    target:2000, base:'fixed'},
+  education: {keys:['school','college','tuition','education','course','book'],
+    tip:'Even $50/month adds up. Community college: ~$4–8k/yr. 4-year: $25–50k/yr.',
+    target:5000, base:'fixed'},
+  housing: {keys:['house','down payment','deposit','moving'],
+    tip:'Down payment = 20% of home price to avoid PMI. For a $200k home = $40k target.',
+    target:10000, base:'fixed'},
+};
+
+function getBucketTip(label){
+  if(!label)return'';
+  const l=label.toLowerCase();
+  for(const[key,rule] of Object.entries(BUCKET_TIPS)){
+    if(rule.keys.some(k=>l.includes(k))) return rule.tip;
+  }
+  return'';
+}
+
+function getSuggestedBucketTarget(label){
+  if(!label)return 0;
+  const l=label.toLowerCase();
+  const b=budgets[ay]; if(!b)return 0;
+  const monthlyExp=Array.isArray(b.expenses)?b.expenses.filter(e=>e.type==='monthly').reduce((s,e)=>s+(parseFloat(e.amount)||0),0):0;
+  const utilMonthly=Array.isArray(b.expenses)?b.expenses.filter(e=>e.type==='monthly'&&matchRule(e.label)?.label==='Utilities').reduce((s,e)=>s+(parseFloat(e.amount)||0),0):0;
+  for(const[key,rule] of Object.entries(BUCKET_TIPS)){
+    if(rule.keys.some(k=>l.includes(k))){
+      if(rule.base==='monthly_expenses') return Math.round(monthlyExp*(rule.multiplier||3));
+      if(rule.base==='utilities_monthly') return Math.round(utilMonthly*(rule.multiplier||2));
+      if(rule.base==='fixed') return rule.target||0;
+    }
+  }
+  return 0;
+}
+
 function rBuckets(){
   const b=budgets[ay]; if(!b.savingsBuckets)b.savingsBuckets=[];
   const grid=document.getElementById('bktgrid'); if(!grid)return;
@@ -674,21 +965,26 @@ function rBuckets(){
     const pct=k.target>0?Math.min(100,Math.round((k.saved/k.target)*100)):0;
     const col=k.color||BKT_COLORS[i%BKT_COLORS.length];
     const div=document.createElement('div'); div.className='sbkt';
+    const suggestedTarget = getSuggestedBucketTarget(k.label);
+    const tipText = k.tip || getBucketTip(k.label);
     div.innerHTML=`
       <div class="sbkt-top">
-        <input class="sbkt-lbl-inp" value="${k.label}" placeholder="Bucket name" oninput="updBkt(${k.id},'label',this.value)">
+        <input class="sbkt-lbl-inp" value="${k.label}" placeholder="Bucket name" oninput="updBkt(${k.id},'label',this.value)" onblur="rBuckets()">
         <button class="db" onclick="delBkt(${k.id})" style="margin-left:6px;">×</button>
       </div>
+      ${tipText?`<div style="font-size:10px;color:var(--muted);margin-bottom:6px;padding:3px 6px;background:var(--surface);border-radius:4px;border-left:2px solid ${col};">${tipText}</div>`:''}
+      ${suggestedTarget>0&&k.target!==suggestedTarget?`<div style="font-size:10px;color:var(--warn);margin-bottom:4px;">💡 Suggested goal: ${fmt(suggestedTarget)} based on your expenses</div>`:''}
       <div class="sbkt-track"><div class="sbkt-fill" style="width:${pct}%;background:${col};"></div></div>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px;">
         <span style="color:${col};">${fmt(k.saved)} saved</span>
-        <span>${pct}% of ${fmt(k.target)} goal</span>
+        <span>${pct}% of ${fmt(k.target)} goal ${pct>=100?'✓ Goal reached! 🎉':''}</span>
       </div>
       <div class="sbkt-row">
         <span style="font-size:11px;color:var(--muted);">Saved&nbsp;$</span>
         <input class="sbkt-inp" type="number" value="${k.saved}" min="0" step="10" oninput="updBkt(${k.id},'saved',parseFloat(this.value)||0)" style="border-color:${col}20;">
         <span style="font-size:11px;color:var(--muted);">Goal&nbsp;$</span>
         <input class="sbkt-inp" type="number" value="${k.target}" min="0" step="100" oninput="updBkt(${k.id},'target',parseFloat(this.value)||0)">
+        ${suggestedTarget>0?`<button onclick="updBkt(${k.id},'target',${suggestedTarget});rBuckets();" style="background:rgba(60,239,176,0.1);border:1px solid var(--accent);border-radius:4px;padding:3px 7px;font-size:10px;color:var(--accent);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">Use ${fmt(suggestedTarget)}</button>`:''}
       </div>`;
     grid.appendChild(div);
   });
@@ -705,7 +1001,21 @@ function delBkt(id){const b=budgets[ay];b.savingsBuckets=b.savingsBuckets.filter
 function updT(){
   const re=document.getElementById('ri');if(re)budgets[ay].roth=parseFloat(re.value)||0;
   const t=gyt(ay);const bar=document.getElementById('tbar');if(!bar)return;
-  bar.innerHTML=`<div class="ti"><div class="tl">Total income</div><div class="tv g">${fmt(t.income)}</div></div><div class="ti"><div class="tl">Total expenses</div><div class="tv w">${fmt(t.expenses)}</div></div><div class="ti"><div class="tl">Savings (all)</div><div class="tv b">${fmt(t.roth+t.hysa+t.buckets)}</div></div><div class="ti"><div class="tl">Leftover</div><div class="tv" style="color:${t.net>=0?'var(--accent)':'var(--danger)'};">${fmt(t.net)}</div></div>`;
+  const ytdEl=document.getElementById('ytd-bar');
+  const monthName=new Date().toLocaleString('default',{month:'short'});
+  bar.innerHTML=`
+    <div class="ti"><div class="tl">Annual income (eff.)</div><div class="tv g">${fmt(t.income)}</div></div>
+    <div class="ti"><div class="tl">Annual expenses (eff.)</div><div class="tv w">${fmt(t.expenses)}</div></div>
+    <div class="ti"><div class="tl">Savings (all)</div><div class="tv b">${fmt(t.roth+t.hysa+t.buckets)}</div></div>
+    <div class="ti"><div class="tl">Net leftover</div><div class="tv" style="color:${t.net>=0?'var(--accent)':'var(--danger)'};">${fmt(t.net)}</div></div>`;
+  if(ytdEl&&ay===new Date().getFullYear()){
+    ytdEl.style.display='grid';
+    ytdEl.innerHTML=`
+      <div class="ti"><div class="tl">YTD earned (thru ${monthName})</div><div class="tv g">${fmt(t.ytd)}</div></div>
+      <div class="ti"><div class="tl">Monthly avg income</div><div class="tv b">${fmt(t.income/12)}</div></div>
+      <div class="ti"><div class="tl">Monthly avg expenses</div><div class="tv w">${fmt(t.expenses/12)}</div></div>
+      <div class="ti"><div class="tl">Monthly net</div><div class="tv" style="color:${t.net>=0?'var(--accent)':'var(--danger)'};">${fmt(t.net/12)}</div></div>`;
+  } else if(ytdEl) ytdEl.style.display='none';
 }
 function saveBY(){updT();sB(budgets);const m=document.getElementById('smsg');m.classList.add('show');setTimeout(()=>m.classList.remove('show'),2000);}
 
@@ -734,6 +1044,76 @@ function yrsToFDIC(h){
   return null;
 }
 
+
+// ── HYSA RATES DATABASE (from HYSA_Rates_Reference.xlsx) ─────────────────────
+const HYSA_RATES_DB = {
+  'MARCUS':   {name:'Marcus by Goldman Sachs', rate:4.50, comp:12, notes:'No fees. Good for primary HYSA.'},
+  'SOFI':     {name:'SoFi Savings',            rate:4.60, comp:365,notes:'Higher rate with direct deposit.'},
+  'ALLY':     {name:'Ally Bank Online Savings',rate:4.20, comp:365,notes:'No fees or minimums. Buckets feature.'},
+  'AMEX_SAV': {name:'Amex High Yield Savings', rate:4.25, comp:365,notes:'No fees. Slower transfers.'},
+  'DISC_SAV': {name:'Discover Online Savings', rate:4.25, comp:365,notes:'No fees. Good app.'},
+  'CAP1':     {name:'Capital One 360 Savings', rate:4.10, comp:365,notes:'Instant transfers.'},
+  'LEND':     {name:'LendingClub LevelUp',     rate:5.00, comp:365,notes:'5% with $250/mo deposits.'},
+  'UFB':      {name:'UFB Direct Portfolio',    rate:4.83, comp:365,notes:'Consistently high. Part of Axos.'},
+  'BETTR':    {name:'Betterment Cash Reserve', rate:4.75, comp:365,notes:'Multi-bank FDIC up to $2M.'},
+  'WFRT':     {name:'Wealthfront Cash',        rate:5.00, comp:365,notes:'Pass-through FDIC up to $8M.'},
+  'GL_FS':    {name:'Greenlight Family Shield', rate:6.00, comp:12, notes:'6% on $5k FAMILY cap = $300/yr max.'},
+  'FIDO_CMA': {name:'Fidelity Cash Management',rate:4.96, comp:365,notes:'Auto sweep to money market.'},
+  'SCHW_SAV': {name:'Schwab Investor Savings', rate:0.48, comp:365,notes:'Very low — use separate HYSA.'},
+  'TBILL_4W': {name:'T-Bills 4-week',          rate:5.18, comp:1,  notes:'US Govt backed. State tax exempt.'},
+  'TBILL_13W':{name:'T-Bills 13-week',         rate:5.12, comp:1,  notes:'3-month T-bill.'},
+};
+
+function lookupHYSA(ticker) {
+  const t = (ticker||'').toUpperCase().trim();
+  return HYSA_RATES_DB[t] || null;
+}
+
+/** Called when user types in a HYSA ticker input — autofills name and rate */
+function hysaTickerInput(id, val) {
+  const h = hysa.find(a=>a.id===id); if(!h) return;
+  h.ticker = val.toUpperCase();
+  const lookup = lookupHYSA(val);
+  if (lookup) {
+    h.name = lookup.name;
+    h.rate = lookup.rate / 100;
+    h.compounding = lookup.comp;
+    sH(hysa);
+    // Re-render just this card
+    rHysa();
+  } else {
+    sH(hysa);
+  }
+}
+
+
+function showRatesTable(){
+  const popup=document.getElementById('rates-popup');
+  if(popup.style.display!=='none'){popup.style.display='none';return;}
+  const tbody=document.getElementById('rates-table-body');
+  tbody.innerHTML=Object.entries(HYSA_RATES_DB).map(([tk,r],i)=>{
+    const rf=i%2===0?'background:var(--surface)':'';
+    const compLabel={1:'Annual',4:'Quarterly',12:'Monthly',52:'Weekly',365:'Daily'}[r.comp]||r.comp;
+    return `<tr style="${rf}">
+      <td style="padding:5px 8px;font-size:12px;color:var(--text);">${r.name}</td>
+      <td style="padding:5px 8px;text-align:right;font-family:'DM Mono',monospace;color:var(--accent);font-weight:500;">${r.rate.toFixed(2)}%</td>
+      <td style="padding:5px 8px;text-align:center;font-size:11px;color:var(--muted);">${compLabel}</td>
+      <td style="padding:5px 8px;font-size:11px;color:var(--muted);">${r.notes}</td>
+      <td style="padding:5px 8px;text-align:center;">
+        <button onclick="addHysaFromRate('${tk}')" style="background:rgba(60,239,176,0.1);border:1px solid var(--accent);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--accent);cursor:pointer;font-family:'DM Sans',sans-serif;">+ Add</button>
+      </td>
+    </tr>`;
+  }).join('');
+  popup.style.display='block';
+}
+
+function addHysaFromRate(ticker){
+  const r=HYSA_RATES_DB[ticker]; if(!r)return;
+  hysa.push({id:nhid++,ticker,name:r.name,rate:r.rate/100,annualDeposit:1000,compounding:r.comp,currentBalance:0});
+  sH(hysa);rHysa();
+  document.getElementById('rates-popup').style.display='none';
+}
+
 function rHysa(){
   const grid=document.getElementById('hcards');grid.innerHTML='';
   const compLabels={1:'Annually',4:'Quarterly',12:'Monthly',52:'Weekly',365:'Daily'};
@@ -753,7 +1133,7 @@ function rHysa(){
     else{etaClass='safe';etaMsg='✓ Will not reach FDIC limit at current rate';}
     const div=document.createElement('div');div.className='hc'+(over?' fo':warn?' fw':'');
     div.innerHTML=`<button class="dhy" onclick="delH(${h.id})">×</button>
-      <div class="ht"><input class="tinp" value="${h.ticker}" maxlength="8" oninput="updH(${h.id},'ticker',this.value)"><span style="font-size:11px;color:var(--muted);">#${idx+1}</span></div>
+      <div class="ht"><input class="tinp" value="${h.ticker}" maxlength="8" list="hysa-datalist" oninput="hysaTickerInput(${h.id},this.value);" style="width:120px;"><span style="font-size:11px;color:var(--muted);">#${idx+1}</span></div>
       <input class="hnin" value="${h.name}" placeholder="Bank / account name" oninput="updH(${h.id},'name',this.value)">
       <div class="hbal-row">
         <div><div class="hbal-label">Current balance</div><div style="font-size:10px;color:var(--muted);margin-top:1px;">Running total</div></div>
@@ -1196,11 +1576,386 @@ function rHist(){
   }).join('');
 }
 
-function exportData(){const d={budgets,hysa,stocks,settings,exportDate:new Date().toISOString()};const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`fintrack_${CU.username}_${new Date().toISOString().split('T')[0]}.json`;a.click();}
+function exportData(){const d={budgets,hysa,stocks,settings,exportDate:new Date().toISOString()};const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`fintrack_${CU?CU.username:'data'}_${new Date().toISOString().split('T')[0]}.json`;a.click();}
 
-renderAU();
-const ss=localStorage.getItem('ft_session');
-if(ss){const u=gU().find(x=>x.id===ss);if(u)loginAs(u);}
+// ═══════════════════════════════════════════════════════════════════════════════
+// BACKEND API CLIENT
+// Tries to use the FinTrack server (localhost:3001) for persistent storage.
+// Falls back to localStorage if the server is not running — so the app works
+// both offline (file://) and with the server running.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const API_BASE   = 'http://localhost:3001/api';
+let   API_TOKEN  = localStorage.getItem('ft_api_token') || null;
+let   USE_BACKEND = false; // set to true after health check passes
+
+/**
+ * Make an authenticated request to the backend.
+ * Returns { data } on success or { error } on failure.
+ */
+async function apiRequest(method, path, body) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (API_TOKEN) headers['Authorization'] = `Bearer ${API_TOKEN}`;
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+    const json = await res.json();
+    if (!res.ok) return { error: json.error || `HTTP ${res.status}` };
+    return { data: json };
+  } catch {
+    return { error: 'Network error — server may not be running.' };
+  }
+}
+
+/**
+ * Check if the backend server is available.
+ * Sets USE_BACKEND accordingly and updates the UI indicator.
+ */
+async function checkBackend() {
+  try {
+    const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(2000) });
+    if (res.ok) {
+      USE_BACKEND = true;
+      setBackendIndicator(true);
+      return true;
+    }
+  } catch { /* server not running */ }
+  USE_BACKEND = false;
+  setBackendIndicator(false);
+  return false;
+}
+
+function setBackendIndicator(online) {
+  const el = document.getElementById('backend-indicator');
+  if (!el) return;
+  el.textContent = online ? '🟢 Server connected' : '🟡 Offline mode';
+  el.title = online
+    ? 'Data syncing with backend server'
+    : 'Server not running — data saved locally only. Run: cd server && npm start';
+}
+
+// ── Backend-aware save functions ─────────────────────────────────────────────
+
+/** Save budgets — tries backend first, falls back to localStorage */
+async function sB(b) {
+  localStorage.setItem(uk('budgets'), JSON.stringify(b));
+  if (USE_BACKEND) await apiRequest('PUT', '/data/budgets', b);
+}
+async function sH(h) {
+  localStorage.setItem(uk('hysa'), JSON.stringify(h));
+  if (USE_BACKEND) await apiRequest('PUT', '/data/hysa', h);
+}
+async function sSt(s) {
+  localStorage.setItem(uk('stocks'), JSON.stringify(s));
+  if (USE_BACKEND) await apiRequest('PUT', '/data/stocks', s);
+}
+async function sSet(s) {
+  localStorage.setItem(uk('settings'), JSON.stringify(s));
+  if (USE_BACKEND) await apiRequest('PUT', '/data/settings', s);
+}
+
+// ── Backend-aware login ───────────────────────────────────────────────────────
+
+/**
+ * Try to authenticate against the backend server.
+ * If server unavailable, fall back to localStorage-only auth.
+ */
+async function doLogin() {
+  const u = document.getElementById('lu').value.trim();
+  const p = document.getElementById('lp').value;
+  if (!u || !p) { setAE('Please fill in all fields.'); return; }
+
+  if (USE_BACKEND) {
+    // ── Backend login ──
+    const { data, error } = await apiRequest('POST', '/auth/login', { username: u, password: p });
+    if (error) { setAE(error); return; }
+    API_TOKEN = data.token;
+    localStorage.setItem('ft_api_token', API_TOKEN);
+    const { data: userData } = await apiRequest('GET', '/data');
+    // Merge backend data into localStorage for offline fallback
+    if (userData?.data) {
+      const d = userData.data;
+      const fakeUser = { id: data.user.id, username: data.user.username, password: hp(p) };
+      const users = gU();
+      if (!users.find(x => x.id === fakeUser.id)) { users.push(fakeUser); sU(users); }
+      localStorage.setItem(`ft_${fakeUser.id}_budgets`,  JSON.stringify(d.budgets));
+      localStorage.setItem(`ft_${fakeUser.id}_hysa`,     JSON.stringify(d.hysa));
+      localStorage.setItem(`ft_${fakeUser.id}_stocks`,   JSON.stringify(d.stocks));
+      localStorage.setItem(`ft_${fakeUser.id}_settings`, JSON.stringify(d.settings));
+    }
+    loginAs({ id: data.user.id, username: data.user.username });
+  } else {
+    // ── Local-only login ──
+    const f = gU().find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === hp(p));
+    if (!f) { setAE('Invalid username or password.'); return; }
+    loginAs(f);
+  }
+}
+
+async function doSignup() {
+  const u = document.getElementById('su').value.trim();
+  const p = document.getElementById('sp').value;
+  const p2 = document.getElementById('sp2').value;
+  if (!u || !p || !p2) { setAE('Please fill in all fields.'); return; }
+  if (u.length < 3)   { setAE('Username must be at least 3 characters.'); return; }
+  if (p.length < 4)   { setAE('Password must be at least 4 characters.'); return; }
+  if (p !== p2)       { setAE('Passwords do not match.'); return; }
+
+  if (USE_BACKEND) {
+    const { data, error } = await apiRequest('POST', '/auth/signup', { username: u, password: p });
+    if (error) { setAE(error); return; }
+    API_TOKEN = data.token;
+    localStorage.setItem('ft_api_token', API_TOKEN);
+    const nu = { id: data.user.id, username: data.user.username, password: hp(p) };
+    const users = gU(); users.push(nu); sU(users);
+    loginAs(nu);
+  } else {
+    const users = gU();
+    if (users.find(x => x.username.toLowerCase() === u.toLowerCase())) { setAE('Username already taken.'); return; }
+    const nu = { id: Date.now().toString(36), username: u, password: hp(p) };
+    users.push(nu); sU(users); loginAs(nu);
+  }
+}
+
+// ── Override loginAs to check backend after login ────────────────────────────
+const _origLoginAs = loginAs;
+// redefine loginAs to also refresh backend status indicator
+function loginAs(user) {
+  CU = user;
+  localStorage.setItem('ft_session', user.id);
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('sbav').textContent = user.username[0].toUpperCase();
+  document.getElementById('sbname').textContent = user.username;
+  document.getElementById('setu').textContent = user.username;
+  budgets = gB(); ensureYear(CY);
+  hysa = gH(); nhid = Math.max(...hysa.map(h => h.id), 0) + 1;
+  stocks = gSt(); nsid = Math.max(...stocks.map(s => s.id), 0) + 1;
+  settings = gSet(); applySettings();
+  setBackendIndicator(USE_BACKEND);
+  showPage('dashboard');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// YAHOO FINANCE AUTO-FILL
+// Debounced ticker lookup — triggers when user pauses typing in any ticker input
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let tickerDebounce = null;
+
+/**
+ * Lookup a ticker via the backend proxy (or a public CORS endpoint as fallback).
+ * @param {string} ticker
+ * @returns {{ name, price, change, changePct } | null}
+ */
+async function lookupTicker(ticker) {
+  if (!ticker || ticker.length < 1) return null;
+  // Try backend proxy first (most reliable, no CORS issues)
+  if (USE_BACKEND) {
+    const { data, error } = await apiRequest('GET', `/ticker/lookup?q=${encodeURIComponent(ticker)}`);
+    if (!error && data?.result) return data.result;
+  }
+  // Fallback: Yahoo Finance CORS-free endpoint via allOrigins proxy
+  // (works in browser without a backend but is rate-limited)
+  try {
+    const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(ticker)}&quotesCount=1&newsCount=0`;
+    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, {
+      signal: AbortSignal.timeout(4000),
+    });
+    const json = await res.json();
+    const q = json?.quotes?.[0];
+    if (q) return { ticker: q.symbol, name: q.longname || q.shortname || q.symbol, price: null };
+  } catch { /* fallback also failed */ }
+  return null;
+}
+
+/**
+ * Wire up auto-fill on a ticker input + optional name/price fields.
+ * @param {string} tickerInputId   — input element id
+ * @param {string} nameInputId     — id of the name field to auto-fill
+ * @param {string} priceInputId    — id of the price field to auto-fill (optional)
+ * @param {string} statusId        — id of a small status span (optional)
+ */
+function wireTickerAutofill(tickerInputId, nameInputId, priceInputId, statusId) {
+  const tickerEl = document.getElementById(tickerInputId);
+  if (!tickerEl) return;
+
+  tickerEl.addEventListener('input', () => {
+    const val = tickerEl.value.trim().toUpperCase();
+    tickerEl.value = val;
+    if (tickerDebounce) clearTimeout(tickerDebounce);
+    if (val.length < 1) return;
+
+    const statusEl = statusId ? document.getElementById(statusId) : null;
+    if (statusEl) { statusEl.textContent = '⏳ Looking up...'; statusEl.style.color = 'var(--muted)'; }
+
+    tickerDebounce = setTimeout(async () => {
+      const result = await lookupTicker(val);
+      if (!result) {
+        if (statusEl) { statusEl.textContent = ''; }
+        return;
+      }
+      // Auto-fill company name
+      const nameEl = document.getElementById(nameInputId);
+      if (nameEl && !nameEl.value) nameEl.value = result.name || '';
+      // Auto-fill price
+      if (priceInputId && result.price) {
+        const priceEl = document.getElementById(priceInputId);
+        if (priceEl && !priceEl.value) priceEl.value = result.price.toFixed(2);
+      }
+      if (statusEl && result.price) {
+        const chg = result.changePct ? ` (${result.changePct >= 0 ? '+' : ''}${result.changePct.toFixed(2)}%)` : '';
+        statusEl.textContent = `$${result.price.toFixed(2)}${chg}`;
+        statusEl.style.color = result.changePct >= 0 ? 'var(--accent)' : 'var(--danger)';
+      } else if (statusEl) {
+        statusEl.textContent = result.name ? '✓ Found' : '';
+        statusEl.style.color = 'var(--accent)';
+      }
+    }, 600); // 600ms debounce
+  });
+}
+
+// ── LIVE PRICE POLLING (2-second interval) ───────────────────────────────────
+let pricePoller = null;
+let liveEnabled = false;
+
+async function fetchLivePrice(ticker) {
+  // Try backend first
+  if (USE_BACKEND) {
+    const { data, error } = await apiRequest('GET', `/ticker/lookup?q=${encodeURIComponent(ticker)}`);
+    if (!error && data?.result?.price) return data.result;
+  }
+  // Fallback: Yahoo Finance via allOrigins CORS proxy
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1m&includePrePost=false`;
+    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, {
+      signal: AbortSignal.timeout(5000)
+    });
+    const json = await res.json();
+    const meta = json?.chart?.result?.[0]?.meta;
+    if (!meta) return null;
+    const price = meta.regularMarketPrice || meta.previousClose;
+    const prev = meta.chartPreviousClose || meta.previousClose;
+    const changePct = prev ? ((price - prev) / prev * 100) : 0;
+    return { ticker, name: meta.shortName || ticker, price, changePct, volume: meta.regularMarketVolume };
+  } catch { return null; }
+}
+
+async function pollLivePrices() {
+  if (!liveEnabled || !stocks.length) return;
+  const today = new Date().toISOString().split('T')[0];
+  let changed = false;
+  for (const s of stocks) {
+    const result = await fetchLivePrice(s.ticker);
+    if (!result?.price) continue;
+    const last = s.priceHistory[s.priceHistory.length - 1];
+    if (last && Math.abs(last.price - result.price) < 0.001) continue; // no change
+    if (last?.date === today) { last.price = result.price; }
+    else { s.priceHistory.push({ date: today, price: result.price }); }
+    s._livePrice = result.price;
+    s._liveChg = result.changePct;
+    changed = true;
+  }
+  if (changed) { sSt(stocks); rStocks(); }
+  // Update live ticker bar on dashboard
+  updateLiveTicker();
+}
+
+function startLivePolling() {
+  if (pricePoller) clearInterval(pricePoller);
+  liveEnabled = true;
+  pollLivePrices(); // immediate first poll
+  pricePoller = setInterval(pollLivePrices, 2000);
+  const btn = document.getElementById('live-toggle');
+  if (btn) { btn.textContent = '⏹ Stop live'; btn.style.color = 'var(--danger)'; }
+}
+
+function stopLivePolling() {
+  liveEnabled = false;
+  if (pricePoller) { clearInterval(pricePoller); pricePoller = null; }
+  const btn = document.getElementById('live-toggle');
+  if (btn) { btn.textContent = '▶ Start live'; btn.style.color = 'var(--accent)'; }
+}
+
+function toggleLive() { liveEnabled ? stopLivePolling() : startLivePolling(); }
+
+function updateLiveTicker() {
+  const bar = document.getElementById('live-ticker-bar');
+  if (!bar || !stocks.length) return;
+  bar.innerHTML = stocks.filter(s => s._livePrice).map(s => {
+    const chg = s._liveChg || 0;
+    const col = chg >= 0 ? 'var(--accent)' : 'var(--danger)';
+    return `<span style="margin-right:18px;font-family:'DM Mono',monospace;font-size:12px;">
+      <span style="color:var(--muted);">${s.ticker}</span>
+      <span style="color:${col};margin-left:5px;">$${s._livePrice.toFixed(2)} ${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</span>
+    </span>`;
+  }).join('');
+}
+
+// ── Wire up auto-fill on the quick-add ticker widget (Dashboard) ──────────────
+// We need to do this after the DOM is ready, so we hook into rbudget/rdash
+const _origRdash = rdash;
+function rdash() {
+  _origRdash();
+  setTimeout(() => {
+    wireTickerAutofill('qt-ticker', 'qt-name', 'qt-buy', 'qt-status');
+  }, 100);
+}
+
+const _origRStocks = rStocks;
+function rStocks() {
+  _origRStocks();
+  setTimeout(() => wireTickerAutofill('nst', 'nsn', 'nsbp', 'nst-status'), 100);
+}
+
+// ── Add status spans to the DOM if missing ───────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Quick-add ticker status label (inject after qt-buy input)
+  const qtBuy = document.getElementById('qt-buy');
+  if (qtBuy && !document.getElementById('qt-status')) {
+    const span = document.createElement('span');
+    span.id = 'qt-status';
+    span.style.cssText = 'font-size:11px;font-family:"DM Mono",monospace;grid-column:span 6;margin-top:2px;';
+    qtBuy.closest('.card')?.appendChild(span);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+(async () => {
+  // 1. Check if backend is available (non-blocking)
+  await checkBackend();
+
+  // 2. Try to restore session from backend token
+  if (USE_BACKEND && API_TOKEN) {
+    const { data, error } = await apiRequest('GET', '/auth/me');
+    if (!error && data?.user) {
+      // Token still valid — restore session using localStorage data
+      const u = gU().find(x => x.id === data.user.id) ||
+                { id: data.user.id, username: data.user.username };
+      if (!gU().find(x => x.id === u.id)) { const us = gU(); us.push(u); sU(us); }
+      loginAs(u);
+      return;
+    } else {
+      // Token expired — clear it
+      API_TOKEN = null;
+      localStorage.removeItem('ft_api_token');
+    }
+  }
+
+  // 3. Fall back to localStorage session
+  renderAU();
+  const ss = localStorage.getItem('ft_session');
+  if (ss) {
+    const u = gU().find(x => x.id === ss);
+    if (u) loginAs(u);
+  }
+})();
+
 </script>
 </body>
 </html>
