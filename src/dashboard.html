@@ -293,7 +293,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
               <input type="range" id="stopAge" min="19" max="64" step="1" value="35" style="width:100%;accent-color:var(--accent);margin-top:8px;" oninput="document.getElementById('sav').textContent=this.value;renderProj();">
             </div>
             <div class="ci"><label>Expected annual return (μ)</label><select id="mrate" onchange="renderProj()"><option value="0.07" selected>7% — historical avg</option><option value="0.06">6% — conservative</option><option value="0.08">8% — optimistic</option><option value="0.10">10% — aggressive</option></select></div>
-            <div class="ci"><label>Annual contribution</label><select id="rcon" onchange="renderProj()"><option value="7000" selected>$7,000 (max)</option><option value="5000">$5,000</option><option value="3000">$3,000</option></select></div>
+            <div class="ci">
+            <label>Annual contribution: <span id="rcon-val" style="color:var(--accent);font-family:'DM Mono',monospace;font-weight:500;">$7,000</span></label>
+            <input type="range" id="rcon" min="500" max="7000" step="500" value="7000"
+              style="width:100%;accent-color:var(--accent);margin-top:8px;"
+              oninput="document.getElementById('rcon-val').textContent='$'+parseInt(this.value).toLocaleString()+(parseInt(this.value)===7000?' (max)':'');renderProj();">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px;"><span>$500</span><span>$3,500</span><span>$7,000 max</span></div>
+          </div>
             <div class="ci"><label>Volatility σ (annual)</label><select id="sigma" onchange="renderProj()"><option value="0.12">12% — low (bond-heavy)</option><option value="0.18" selected>18% — moderate (index)</option><option value="0.25">25% — high (growth)</option><option value="0.35">35% — very high (speculative)</option></select></div>
             <div class="ci"><label>Simulations</label><select id="nsims" onchange="renderProj()"><option value="200">200 — fast</option><option value="500" selected>500 — standard</option><option value="1000">1,000 — precise</option></select></div>
             <div class="ci"><label>Show bands</label><select id="showbands" onchange="renderProj()"><option value="all" selected>P10 / P25 / P50 / P75 / P90</option><option value="wide">P10 / P50 / P90 only</option><option value="median">Median only</option></select></div>
@@ -406,11 +412,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="page" id="page-stocks">
       <div class="ph"><h1>Stock Portfolio</h1><p>Track holdings — live prices via Yahoo Finance · log prices · sync with Excel</p></div>
       <!-- Live ticker bar -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;margin-bottom:1rem;display:flex;align-items:center;gap:12px;overflow:hidden;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;margin-bottom:1rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <button id="live-toggle" onclick="toggleLive()" style="background:none;border:1px solid var(--accent);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">▶ Start live</button>
-        <span style="font-size:10px;color:var(--muted);white-space:nowrap;">2s refresh</span>
+        <span style="font-size:10px;color:var(--muted);white-space:nowrap;">2s · Yahoo Finance</span>
+        <button id="ext-hours-toggle" onclick="toggleExtendedHours()" style="background:none;border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">🌙 Extended: OFF</button>
+        <span id="market-status" style="font-size:10px;color:var(--muted);white-space:nowrap;"></span>
         <div id="live-ticker-bar" style="overflow:hidden;white-space:nowrap;flex:1;">
-          <span style="font-size:11px;color:var(--muted);">Press Start live to begin fetching Yahoo Finance prices every 2 seconds</span>
+          <span style="font-size:11px;color:var(--muted);">Press Start live to begin — prices update every 2 seconds</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
@@ -595,11 +603,11 @@ function gU(){return JSON.parse(localStorage.getItem('ft_users')||'[]');}
 function sU(u){localStorage.setItem('ft_users',JSON.stringify(u));}
 function gB(){return JSON.parse(localStorage.getItem(uk('budgets'))||'{}');}
 function sB(b){localStorage.setItem(uk('budgets'),JSON.stringify(b));}
-function gH(){return JSON.parse(localStorage.getItem(uk('hysa'))||'null')||[{id:1,ticker:'MARCUS',name:'Marcus by Goldman Sachs',rate:0.045,annualDeposit:2000,compounding:12,currentBalance:0},{id:2,ticker:'SOFI',name:'SoFi Savings',rate:0.050,annualDeposit:1000,compounding:12,currentBalance:0}];}
+function gH(){return JSON.parse(localStorage.getItem(uk('hysa'))||'null')||[];}
 function sH(h){localStorage.setItem(uk('hysa'),JSON.stringify(h));}
 function gSt(){return JSON.parse(localStorage.getItem(uk('stocks'))||'[]');}
 function sSt(s){localStorage.setItem(uk('stocks'),JSON.stringify(s));}
-function gSet(){return JSON.parse(localStorage.getItem(uk('settings'))||'{"themeIdx":0,"accent":"#3cefb0"}');}
+function gSet(){return JSON.parse(localStorage.getItem(uk('settings'))||'{"themeIdx":0,"accent":"#3cefb0","liveEnabled":false,"extendedHours":false}');}
 function sSet(s){localStorage.setItem(uk('settings'),JSON.stringify(s));}
 
 function hp(p){let h=0;for(let i=0;i<p.length;i++)h=(Math.imul(31,h)+p.charCodeAt(i))|0;return h.toString(36);}
@@ -641,6 +649,8 @@ function loginAs(user){
   stocks=gSt(); nsid=Math.max(...stocks.map(s=>s.id),0)+1;
   settings=gSet(); applySettings();
   showPage('dashboard');
+  // Restore live polling preference
+  if(settings.liveEnabled) setTimeout(startLivePolling, 500);
 }
 function doLogout(){CU=null;localStorage.removeItem('ft_session');document.getElementById('auth-screen').style.display='flex';document.getElementById('app-screen').style.display='none';renderAU();}
 function setAE(m){document.getElementById('aerr').textContent=m;}
@@ -691,6 +701,30 @@ function getEffectiveAmount(it){
 }
 
 // Helper: get frequency label for display
+// Calculate next charge date based on last-charged date and frequency
+function calcNextCharge(type, lastDateStr) {
+  if (!lastDateStr) return null;
+  const last = new Date(lastDateStr);
+  if (isNaN(last)) return null;
+  const now = new Date();
+  const freqDays = {weekly:7,biweekly:14,monthly:null,quarterly:null,semiann:null,annually:null};
+  let next = new Date(last);
+  // Advance until next is in the future
+  let safety = 0;
+  while (next <= now && safety++ < 1000) {
+    if (type==='weekly')    next.setDate(next.getDate()+7);
+    else if(type==='biweekly') next.setDate(next.getDate()+14);
+    else if(type==='monthly')  next.setMonth(next.getMonth()+1);
+    else if(type==='quarterly')next.setMonth(next.getMonth()+3);
+    else if(type==='semiann')  next.setMonth(next.getMonth()+6);
+    else if(type==='annually') next.setFullYear(next.getFullYear()+1);
+    else return null;
+  }
+  const diff = Math.round((next-now)/(1000*60*60*24));
+  const label = next.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return diff===0?'today':diff===1?`tomorrow (${label})`:`${label} (${diff}d)`;
+}
+
 function getFreqLabel(type){
   const labels={weekly:'Weekly',biweekly:'Bi-weekly',monthly:'Monthly',quarterly:'Quarterly',
     semiann:'Semi-annually',annually:'Annually',onetime:'One-time',capex:'One-time'};
@@ -876,15 +910,23 @@ function rlines(t){
       {v:'capex',    l:'One-time / Capex'},
     ];
     const typeOpts=freqs.map(f=>`<option value="${f.v}" ${it.type===f.v?'selected':''}>${f.l}</option>`).join('');
+    const isRecurring=['weekly','biweekly','monthly','quarterly','semiann','annually'].includes(it.type);
+    const isOnetime = it.type==='onetime'||it.type==='capex';
+    const dateLabel = isOnetime ? 'Transaction date' : 'Started / last charged';
+    const nextCharge = isRecurring&&it.date ? calcNextCharge(it.type, it.date) : null;
     const row2=`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <select style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:11px;color:${typeColor};font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;"
         onchange="uLsafe('${t}',${i},'type',this.value);rlines('${t}');">
         ${typeOpts}
       </select>
-      <input type="date" value="${it.date||today}" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;outline:none;cursor:pointer;color-scheme:dark;"
-        onchange="uLsafe('${t}',${i},'date',this.value);">
-      ${effAmt>0?`<span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);">≈ ${fmt(effAmt)}/yr effective</span>`:''}
-      ${it.type!=='monthly'&&it.date&&new Date(it.date)>new Date()?'<span style="font-size:10px;color:var(--warn);">⏳ future — not counted yet</span>':''}
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span style="font-size:10px;color:var(--muted);white-space:nowrap;">${dateLabel}:</span>
+        <input type="date" value="${it.date||today}" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;outline:none;cursor:pointer;color-scheme:dark;"
+          onchange="uLsafe('${t}',${i},'date',this.value);rlines('${t}');">
+      </div>
+      ${effAmt>0?`<span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);">≈ ${fmt(effAmt)}/yr</span>`:''}
+      ${nextCharge?`<span style="font-size:10px;color:var(--blue);white-space:nowrap;">↻ next: ${nextCharge}</span>`:''}
+      ${isOnetime&&it.date&&new Date(it.date)>new Date()?'<span style="font-size:10px;color:var(--warn);">⏳ future — not counted yet</span>':''}
     </div>`;
     // Row 3: rec tip for expenses
     let recHtml='';
@@ -935,7 +977,7 @@ function updateRecTip(i, tipEl){
     <span style="font-size:10px;font-family:'DM Mono',monospace;color:${statusColor};">${status} ${actualPct.toFixed(1)}% (${fmt(income*lo/100)}–${fmt(income*hi/100)})</span>
   </div>`;
 }
-function addL(t){(t==='income'?budgets[ay].income:budgets[ay].expenses).push({label:'',amount:0});rlines(t);updT();}
+function addL(t){const td=new Date().toISOString().split('T')[0];(t==='income'?budgets[ay].income:budgets[ay].expenses).push({label:'',amount:0,type:'monthly',date:td});rlines(t);updT();}
 function dL(t,i){(t==='income'?budgets[ay].income:budgets[ay].expenses).splice(i,1);rlines(t);updT();}
 
 const BKT_COLORS=['#3cefb0','#4e9eff','#ff8c42','#b78fff','#ff5c5c','#ffd166','#06d6a0','#f72585'];
@@ -1593,6 +1635,13 @@ function rStocks(){
   if(ad.length){const pv=ad.map(date=>stocks.reduce((sum,s)=>{const e=s.priceHistory.slice().reverse().find(x=>x.date<=date);return sum+(e?e.price*s.shares:s.buyPrice*s.shares);},0));shc=new Chart(document.getElementById('sthch'),{type:'line',data:{labels:ad,datasets:[{label:'Portfolio',data:pv,borderColor:'#3cefb0',backgroundColor:'rgba(60,239,176,0.07)',fill:true,tension:0.3,pointRadius:pv.length>5?0:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.parsed.y)}}},scales:{x:{ticks:{color:'#7a8499',font:{size:11},autoSkip:true,maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#7a8499',font:{size:11},callback:v=>fmt(v,true)},grid:{color:'rgba(255,255,255,0.04)'}}}}});}
   // Wire ticker autofill on the add-stock form (safe: called after DOM is set)
   setTimeout(()=>wireTickerAutofill('nst','nsn','nsbp','nst-status'), 50);
+  // Sync button states with current settings
+  syncExtHoursButton();
+  syncLiveButton();
+  updateMarketStatus();
+  // Update market status every minute
+  if (window._mktStatusInterval) clearInterval(window._mktStatusInterval);
+  window._mktStatusInterval = setInterval(updateMarketStatus, 60000);
 }
 
 function rHist(){
@@ -1860,7 +1909,8 @@ async function fetchLivePrice(ticker) {
   }
   // Fallback: Yahoo Finance via allOrigins CORS proxy
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1m&includePrePost=false`;
+    const includePost = settings.extendedHours ? 'true' : 'false';
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1m&includePrePost=${includePost}&prePost=${includePost}`;
     const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, {
       signal: AbortSignal.timeout(5000)
     });
@@ -1897,7 +1947,8 @@ async function pollLivePrices() {
 function startLivePolling() {
   if (pricePoller) clearInterval(pricePoller);
   liveEnabled = true;
-  pollLivePrices(); // immediate first poll
+  settings.liveEnabled = true; sSet(settings);
+  pollLivePrices();
   pricePoller = setInterval(pollLivePrices, 2000);
   const btn = document.getElementById('live-toggle');
   if (btn) { btn.textContent = '⏹ Stop live'; btn.style.color = 'var(--danger)'; }
@@ -1905,12 +1956,63 @@ function startLivePolling() {
 
 function stopLivePolling() {
   liveEnabled = false;
+  settings.liveEnabled = false; sSet(settings);
   if (pricePoller) { clearInterval(pricePoller); pricePoller = null; }
   const btn = document.getElementById('live-toggle');
   if (btn) { btn.textContent = '▶ Start live'; btn.style.color = 'var(--accent)'; }
 }
 
 function toggleLive() { liveEnabled ? stopLivePolling() : startLivePolling(); }
+
+function toggleExtendedHours() {
+  settings.extendedHours = !settings.extendedHours;
+  sSet(settings);
+  const btn = document.getElementById('ext-hours-toggle');
+  if (btn) {
+    btn.textContent = settings.extendedHours ? '🌙 Extended: ON' : '🌙 Extended: OFF';
+    btn.style.color = settings.extendedHours ? 'var(--warn)' : 'var(--muted)';
+    btn.style.borderColor = settings.extendedHours ? 'var(--warn)' : 'var(--border2)';
+  }
+  // If live is running, restart to pick up the new setting
+  if (liveEnabled) { stopLivePolling(); startLivePolling(); }
+}
+
+function getMarketStatus() {
+  const now = new Date();
+  // Convert to US Eastern time
+  const eastern = new Date(now.toLocaleString('en-US', {timeZone:'America/New_York'}));
+  const h = eastern.getHours(), m = eastern.getMinutes(), day = eastern.getDay();
+  const mins = h*60+m;
+  if (day===0||day===6) return {status:'closed', label:'🔴 Market closed (weekend)'};
+  if (mins>=240&&mins<570)  return {status:'pre',    label:'🟡 Pre-market (4:00–9:30 AM ET)'};
+  if (mins>=570&&mins<960)  return {status:'open',   label:'🟢 Market open (9:30 AM–4:00 PM ET)'};
+  if (mins>=960&&mins<1200) return {status:'after',  label:'🟠 After-hours (4:00–8:00 PM ET)'};
+  return {status:'closed', label:'🔴 Market closed'};
+}
+
+function updateMarketStatus() {
+  const el = document.getElementById('market-status');
+  if (!el) return;
+  const ms = getMarketStatus();
+  el.textContent = ms.label;
+  el.style.color = ms.status==='open'?'var(--accent)':ms.status==='pre'||ms.status==='after'?'var(--warn)':'var(--danger)';
+}
+
+function syncExtHoursButton() {
+  const btn = document.getElementById('ext-hours-toggle');
+  if (!btn) return;
+  btn.textContent = settings.extendedHours ? '🌙 Extended: ON' : '🌙 Extended: OFF';
+  btn.style.color = settings.extendedHours ? 'var(--warn)' : 'var(--muted)';
+  btn.style.borderColor = settings.extendedHours ? 'var(--warn)' : 'var(--border2)';
+}
+
+function syncLiveButton() {
+  const btn = document.getElementById('live-toggle');
+  if (!btn) return;
+  btn.textContent = liveEnabled ? '⏹ Stop live' : '▶ Start live';
+  btn.style.color = liveEnabled ? 'var(--danger)' : 'var(--accent)';
+  btn.style.borderColor = liveEnabled ? 'var(--danger)' : 'var(--accent)';
+}
 
 function updateLiveTicker() {
   const bar = document.getElementById('live-ticker-bar');
