@@ -2348,23 +2348,26 @@ function updateLiveTicker() {
 
 
 // ── PWA: Service Worker Registration ─────────────────────────────────────────
-// Only register when running on a real server — skip on claudeusercontent.com
-// and file:// so there's no 404 warning in previews
-if ('serviceWorker' in navigator) {
-  const isRealServer = (
-    window.location.protocol === 'https:' ||
-    (window.location.protocol === 'http:' && window.location.hostname === 'localhost')
-  ) && !window.location.hostname.includes('claudeusercontent.com');
-
-  if (isRealServer) {
+// Only register when the app is deployed on its own origin (not Claude preview,
+// not file://, not any third-party host). sw.js is written to server/public/sw.js.
+(function() {
+  if (!('serviceWorker' in navigator)) return;
+  const h = window.location.hostname;
+  const proto = window.location.protocol;
+  const SKIP_HOSTS = ['claudeusercontent.com','claude.ai','anthropic.com','localhost.claude'];
+  const onSkipHost = SKIP_HOSTS.some(s => h.includes(s));
+  const onFileProto = proto === 'file:';
+  // Only register on http://localhost:3001 or a real deployed https domain
+  const isLocal = proto === 'http:' && h === 'localhost';
+  const isDeployed = proto === 'https:' && !onSkipHost;
+  if (!onFileProto && !onSkipHost && (isLocal || isDeployed)) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').then(reg => {
-        console.log('[SW] registered:', reg.scope);
-        setInterval(() => reg.update(), 60000);
-      }).catch(err => console.warn('[SW] registration failed:', err));
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => { console.log('[SW] registered:', reg.scope); setInterval(() => reg.update(), 60000); })
+        .catch(err => console.warn('[SW] registration failed:', err));
     });
   }
-}
+})();
 
 // ── Deep link support: ?page=stocks loads that page on open ──────────────────
 window.addEventListener('DOMContentLoaded', () => {
