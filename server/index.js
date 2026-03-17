@@ -39,17 +39,17 @@ console.log(`[db] SQLite ready → ${process.env.DB_PATH || './fintrack.db'}`);
 // ── Security middleware ───────────────────────────────────────────────────────
 // Helmet sets safe HTTP headers; relax CSP just enough for CDN fonts & charts
 app.use(helmet({
-  contentSecurityPolicy: false,//: {
-    //directives: {
-     // defaultSrc:  ["'self'"],
-    //  scriptSrc:   ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'cdnjs.cloudflare.com'],
-    //  scriptSrcAttr: ["'unsafe-inline'"],
-    //  styleSrc:    ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
-    //  fontSrc:     ["'self'", 'fonts.gstatic.com', 'fonts.googleapis.com'],
-    //  imgSrc:      ["'self'", 'data:', 'blob:'],
-    //  connectSrc:  ["'self'", 'query1.finance.yahoo.com', 'api.anthropic.com', 'api.allorigins.win', 'fonts.googleapis.com', 'fonts.gstatic.com'],
-   // },
-  //},
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:  ["'self'"],
+      scriptSrc:   ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'cdnjs.cloudflare.com'],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc:    ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
+      fontSrc:     ["'self'", 'fonts.gstatic.com', 'fonts.googleapis.com'],
+      imgSrc:      ["'self'", 'data:', 'blob:'],
+      connectSrc:  ["'self'", 'query1.finance.yahoo.com', 'api.anthropic.com', 'api.allorigins.win', 'fonts.googleapis.com', 'fonts.gstatic.com'],
+    },
+  },
   crossOriginEmbedderPolicy: false,
 }));
 
