@@ -60,8 +60,8 @@ const ALLOWED_ORIGINS = process.env.CORS_ORIGIN
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow server-to-server (no Origin header) and allowed origins
-    if (!origin || ALLOWED_ORIGINS.includes(origin) || ENV === 'development') {
+    // Allow server-to-server (no Origin header), file:// (origin 'null'), and allowed origins
+    if (!origin || origin === 'null' || ALLOWED_ORIGINS.includes(origin) || ENV === 'development') {
       return cb(null, true);
     }
     cb(new Error(`CORS: origin ${origin} not allowed`));
