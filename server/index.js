@@ -42,14 +42,14 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc:  ["'self'"],
-      scriptSrc:   ["'self'", "'unsafe-inline'", 'cdnjs.cloudflare.com'],
+      scriptSrc:   ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'cdnjs.cloudflare.com'],
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc:    ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
-      fontSrc:     ["'self'", 'fonts.gstatic.com'],
+      fontSrc:     ["'self'", 'fonts.gstatic.com', 'fonts.googleapis.com'],
       imgSrc:      ["'self'", 'data:', 'blob:'],
-      connectSrc:  ["'self'", 'query1.finance.yahoo.com', 'api.anthropic.com'],
+      connectSrc:  ["'self'", 'query1.finance.yahoo.com', 'api.anthropic.com', 'api.allorigins.win', 'fonts.googleapis.com', 'fonts.gstatic.com'],
     },
   },
-  // Allow the PWA manifest and service worker to load
   crossOriginEmbedderPolicy: false,
 }));
 
