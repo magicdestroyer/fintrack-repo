@@ -1,0 +1,36 @@
+# render.yaml — One-click Render deployment
+# Docs: https://render.com/docs/blueprint-spec
+#
+# To deploy:
+#   1. Push this file to GitHub
+#   2. Go to render.com → New → Blueprint
+#   3. Select your repo → Render reads this file automatically
+#   4. Set JWT_SECRET in the Render dashboard (Environment tab)
+
+services:
+  - type: web
+    name: fintrack
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DB_PATH
+        value: /data/fintrack.db
+      - key: JWT_SECRET
+        sync: false          # You must set this manually in the Render dashboard
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: PRICE_CACHE_TTL_S
+        value: 900
+      - key: BCRYPT_ROUNDS
+        value: 12
+    disk:
+      name: fintrack-data
+      mountPath: /data
+      sizeGB: 1

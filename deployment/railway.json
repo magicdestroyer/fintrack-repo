@@ -1,0 +1,27 @@
+# railway.json — Railway deployment config
+# Docs: https://docs.railway.app/reference/config-as-code
+#
+# To deploy:
+#   1. Push this file to GitHub
+#   2. Go to railway.app → New Project → Deploy from GitHub
+#   3. Select your repo — Railway reads this file automatically
+#   4. Add environment variables in the Railway dashboard:
+#        JWT_SECRET=<your-generated-secret>
+#        NODE_ENV=production
+#        DB_PATH=/data/fintrack.db
+#   5. Add a Volume at /data for the SQLite database
+
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd server && npm install"
+  },
+  "deploy": {
+    "startCommand": "cd server && node index.js",
+    "healthcheckPath": "/api/health",
+    "healthcheckTimeout": 30,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  }
+}

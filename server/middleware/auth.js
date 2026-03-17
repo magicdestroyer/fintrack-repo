@@ -1,55 +1,75 @@
 /**
  * middleware/auth.js — JWT authentication middleware
  *
- * Attaches req.userId to authenticated requests.
- * Returns 401 if the token is missing, expired, or invalid.
- *
- * Usage:
- *   const { requireAuth } = require('./middleware/auth');
- *   router.get('/protected', requireAuth, handler);
+ * requireAuth:  attaches req.userId; returns 401 on failure
+ * optionalAuth: attaches req.userId if token present; never rejects
+ * signToken:    issues a signed JWT for a given userId
  */
 
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-insecure-secret-change-in-production';
+const JWT_SECRET  = process.env.JWT_SECRET;
+const JWT_EXPIRES = process.env.JWT_EXPIRES_IN || '30d';
+
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  console.error(
+    '[auth] FATAL: JWT_SECRET is missing or too short (min 32 chars). ' +
+    'Set it in your .env file before starting the server.'
+  );
+  if (process.env.NODE_ENV === 'production') process.exit(1);
+}
 
 /**
- * Extract and verify the Bearer token from the Authorization header.
- * On success, sets req.userId and calls next().
- * On failure, returns a 401 JSON error.
+ * Verify the Bearer token from the Authorization header.
+ * On success: sets req.userId and calls next().
+ * On failure: returns a 401 JSON error.
  */
 function requireAuth(req, res, next) {
-  const header = req.headers.authorization || '';
-  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
-
+  const token = extractToken(req);
   if (!token) {
-    return res.status(401).json({ error: 'Authentication required — no token provided.' });
+    return res.status(401).json({ error: 'Authentication required. Please sign in.' });
   }
-
   try {
     const payload = jwt.verify(token, JWT_SECRET);
     req.userId = payload.userId;
     next();
   } catch (err) {
-    const message = err.name === 'TokenExpiredError'
-      ? 'Session expired — please sign in again.'
-      : 'Invalid authentication token.';
-    return res.status(401).json({ error: message });
+    const msg = err.name === 'TokenExpiredError'
+      ? 'Your session has expired. Please sign in again.'
+      : 'Invalid authentication token. Please sign in again.';
+    return res.status(401).json({ error: msg });
   }
+}
+
+/**
+ * Attach userId if a valid token is present, but never block the request.
+ */
+function optionalAuth(req, _res, next) {
+  const token = extractToken(req);
+  if (token) {
+    try {
+      const payload = jwt.verify(token, JWT_SECRET);
+      req.userId = payload.userId;
+    } catch (_) {
+      // Silently ignore invalid / expired tokens
+    }
+  }
+  next();
 }
 
 /**
  * Issue a signed JWT for a given user.
  * @param {string} userId
- * @returns {string} signed JWT string
+ * @returns {string}
  */
 function signToken(userId) {
-  return jwt.sign(
-    { userId },
-    JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
-  );
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 }
 
-module.exports = { requireAuth, signToken };
+function extractToken(req) {
+  const header = req.headers.authorization || '';
+  return header.startsWith('Bearer ') ? header.slice(7).trim() : null;
+}
+
+module.exports = { requireAuth, optionalAuth, signToken };

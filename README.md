@@ -1,75 +1,168 @@
 # FinTrack — Personal Finance Dashboard
 
-A fully local, browser-based personal finance dashboard. No server required — open
-`src/dashboard.html` in any browser to start.
+A full-stack personal finance app: track stocks, budget income/expenses, model
+HYSA compounding, run Monte Carlo Roth IRA projections, and get AI-powered
+portfolio analysis — all with cross-device sync via a Node.js + SQLite backend.
 
-## Quick start
-1. Download `src/dashboard.html`
-2. Open in Chrome, Firefox, or Edge
-3. Create an account (DOB + risk tolerance help personalize AI analysis)
-4. Start logging budgets, stocks, and HYSA accounts
+## Live demo & quick start
+
+```bash
+# Clone
+git clone https://github.com/YOUR_USERNAME/fintrack.git
+cd fintrack
+
+# Install server dependencies
+cd server && npm install
+
+# Create config (set JWT_SECRET!)
+cp .env.example .env
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+# → paste that output as JWT_SECRET in .env
+
+# Start
+npm start
+# → http://localhost:3001
+```
+
+---
 
 ## Features
 
 | Feature | Description |
 |---------|-------------|
-| 🔐 Multi-user login | Per-user data isolation, session persistence |
-| 📅 Budget Logger | Income/expense tracking with weekly–annually frequencies, YTD row, spending tips |
+| 🔐 Multi-user auth | JWT sessions, bcrypt passwords, cross-device sync |
+| 📅 Budget Logger | Income/expense tracking, weekly–annually frequencies, YTD row, spending tips |
 | 💰 Savings Buckets | Emergency fund, medical fund, etc. with smart target suggestions |
 | 🏦 HYSA Accounts | Multi-account FDIC tracker, compounding calculator, rates database autofill |
-| 📈 Stock Portfolio | Add holdings, live Yahoo Finance prices (2s polling), extended hours toggle |
+| 📈 Stock Portfolio | Add holdings, live Yahoo Finance prices (via backend proxy), extended hours |
 | 📊 Portfolio Slicers | 1D/5D/1M/3M/6M/YTD/1Y/All range filter on portfolio chart |
 | 🤖 AI Stock Analyzer | Claude-powered analysis personalized to your age + risk tolerance |
 | 🎯 Allocation Optimizer | Portfolio rebalancing recommendations for your specific profile |
-| 🔮 Monte Carlo Projections | Stochastic GBM projection with P10–P90 probability bands |
+| 🔮 Monte Carlo | Stochastic GBM projection with P10–P90 probability bands |
 | 🎨 Themes | 5 dark color themes + custom accent picker |
-| 📤 Export | JSON data export + CSV stock sync with Excel |
+| 📤 Export / Import | JSON export + CSV stock sync + server-side data export |
+| 📱 PWA | Installable on iOS/Android, offline-capable via service worker |
 
-## AI personalization
+---
 
-FinTrack personalizes all AI analysis to your investor profile:
-- **Date of birth** → calculates age and years to retirement
-- **Risk tolerance** → conservative / moderate / aggressive / speculative
+## Architecture
 
-Set these during signup or update them in Settings → Account & Profile.
+```
+fintrack/
+├── server/                   ← Node.js + Express backend
+│   ├── index.js              ← App entry point (helmet, CORS, rate limit, routes)
+│   ├── db.js                 ← SQLite layer (better-sqlite3, WAL mode)
+│   ├── middleware/
+│   │   └── auth.js           ← JWT verify middleware
+│   ├── routes/
+│   │   ├── auth.js           ← signup, login, me, profile, password
+│   │   ├── data.js           ← budgets/hysa/stocks/settings CRUD + export/import
+│   │   └── ticker.js         ← Yahoo Finance proxy (lookup/quote/batch/history/search)
+│   ├── public/               ← Served frontend files
+│   │   ├── index.html        ← Main dashboard (all features)
+│   │   ├── sw.js             ← Service worker
+│   │   └── manifest.json     ← PWA manifest
+│   ├── .env.example          ← Config template
+│   └── package.json
+├── docs/
+│   ├── DEPLOYMENT.md         ← Render, Railway, Docker, App Store guides
+│   └── CHANGELOG.md          ← Full version history
+├── .github/workflows/
+│   └── ci.yml                ← GitHub Actions (test + Docker build)
+├── Dockerfile                ← Multi-stage production Docker image
+├── docker-compose.yml        ← Local/VPS compose setup
+└── .gitignore
+```
 
-## Excel companion files
+---
 
-| File | Description |
-|------|-------------|
-| `FinTrack_Stock_Tracker.xlsx` | Per-market stock sheets with formulas |
-| `HYSA_Rates_Reference.xlsx` | 15 HYSA accounts with current APY rates |
+## API Reference
+
+### Auth
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/auth/signup` | — | Create account |
+| POST | `/api/auth/login` | — | Sign in → JWT |
+| GET | `/api/auth/me` | ✓ | Verify token, get profile |
+| PUT | `/api/auth/profile` | ✓ | Update DOB, risk, email |
+| PUT | `/api/auth/password` | ✓ | Change password |
+| POST | `/api/auth/logout` | — | Client-side logout |
+
+### Data
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/data` | ✓ | Load all user data |
+| PUT | `/api/data` | ✓ | Save all data in one request |
+| PUT | `/api/data/:key` | ✓ | Save one key (`budgets`/`hysa`/`stocks`/`settings`) |
+| GET | `/api/data/export` | ✓ | Download full JSON export |
+| POST | `/api/data/import` | ✓ | Restore from JSON export |
+
+### Ticker (Yahoo Finance proxy)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/ticker/lookup?q=SCHB` | — | Search + price autofill |
+| GET | `/api/ticker/quote?t=SCHB` | ✓ | Full quote (all fields) |
+| GET | `/api/ticker/batch?t=A,B,C` | ✓ | Batch quotes (max 50) |
+| GET | `/api/ticker/history?t=SCHB&range=1mo` | ✓ | OHLCV history |
+| GET | `/api/ticker/search?q=schwab` | — | Company name search |
+
+### System
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/health` | Server version + timestamp |
+| GET | `/api/ready` | DB liveness probe |
+
+---
+
+## Deployment
+
+See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for:
+- Render (free tier, recommended)
+- Railway
+- Docker / self-hosted VPS with Nginx
+- iOS App Store via Capacitor
+- Google Play via TWA or Capacitor
+
+---
+
+## Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `JWT_SECRET` | ✅ | — | Min 32-char random string |
+| `NODE_ENV` | — | `development` | Set `production` on servers |
+| `PORT` | — | `3001` | HTTP port |
+| `DB_PATH` | — | `./fintrack.db` | Use absolute path in production |
+| `JWT_EXPIRES_IN` | — | `30d` | Session lifetime |
+| `PRICE_CACHE_TTL_S` | — | `900` | Yahoo Finance cache TTL (seconds) |
+| `BCRYPT_ROUNDS` | — | `12` | Password hash cost factor |
+| `CORS_ORIGIN` | — | all | Comma-separated allowed origins |
+
+---
+
+## Cross-device sync
+
+Sign in with the same credentials on any browser/device. All data (budgets,
+stocks, HYSA, settings) is stored server-side in SQLite and synced on login
+and on every auto-save. JWTs last 30 days before requiring re-login.
+
+---
 
 ## Git branch structure
 
 ```
-main (v1.8.0 — stable)
-└── feature/advanced-analytics (v1.9.0 — Monte Carlo, AI analyzer, live prices)
-    └── feature/budget-enhancements (v1.10.0 — WIP, all recent changes)
+main                           ← stable, production-ready (v2.0.0)
+feature/advanced-analytics     ← Monte Carlo, AI analyzer (merged → main)
+feature/budget-enhancements    ← Budget types, HYSA autofill (merged → main)
+feature/fullstack-app          ← Backend + Docker (merged → main)
 ```
 
-To push to GitHub:
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/fintrack.git
-git push -u origin main
-git push origin feature/advanced-analytics
-git push origin feature/budget-enhancements
-```
+---
 
-See `docs/GITHUB_SETUP.md` for full instructions.
+## License
 
-## Data storage
-
-All data is saved to your browser's `localStorage`. Use **Settings → Export as JSON**
-to back up. Data persists between sessions on the same device/browser.
-
-## Roadmap highlights
-
-- Real-time WebSocket price feed
-- Dividend tracker with yield-on-cost
-- Tax lot tracking (FIFO/LIFO/SpecID)
-- PWA home screen install
-- Price alert push notifications
-- Google Sheets two-way sync
-
-See the **Roadmap** page inside the app for the full backlog.
+MIT — see LICENSE for details.
