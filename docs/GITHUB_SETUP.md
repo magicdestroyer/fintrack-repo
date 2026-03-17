@@ -1,44 +1,65 @@
-# Pushing to GitHub Private Repository
+# Deploying FinTrack to GitHub
 
-## Step 1 — Create the repo on GitHub
-1. Go to https://github.com/new
-2. Name: `fintrack` (or anything you like)
-3. Select **Private**
-4. Do NOT initialize with README (we have one already)
-5. Click **Create repository**
-
-## Step 2 — Add your remote and push
-Run these commands in your terminal after downloading the repo folder:
+## Step 1 — Push the repository
 
 ```bash
-# If you downloaded the zip, cd into the folder first
-cd fintrack-repo
-
-# Add GitHub as the remote (replace YOUR_USERNAME)
+# From inside the unzipped fintrack-repo folder:
 git remote add origin https://github.com/YOUR_USERNAME/fintrack.git
-
-# Push all commits and branches
 git push -u origin main
+git push origin feature/advanced-analytics feature/budget-enhancements
 ```
 
-## Step 3 — Authenticate
-GitHub no longer accepts password auth. Use a Personal Access Token:
-1. Go to GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic)
-2. Generate new token → select `repo` scope
-3. Copy the token
-4. When git prompts for password, paste the token
+For authentication use a Personal Access Token:
+- GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic)
+- Scopes: `repo`, `workflow`
+- Paste the token when git asks for a password
 
-## Step 4 — Future updates
-Every time you make changes:
+## Step 2 — Enable GitHub Pages
+
+1. Go to your repo → **Settings → Pages**
+2. Source: **GitHub Actions**
+3. The `deploy.yml` workflow will auto-build and deploy on every push to `main`
+4. Your app will be live at: `https://YOUR_USERNAME.github.io/fintrack/`
+
+## Step 3 — Connect GitHub to Claude (optional)
+
+1. **claude.ai → Settings → Integrations → GitHub**
+2. Authorize Claude to access your repos
+3. In future sessions Claude can push branches and create PRs directly
+
+## Updating the app
+
+Every time you push to `main`, GitHub Actions re-deploys automatically:
+
 ```bash
 git add -A
-git commit -m "describe your change"
-git push
+git commit -m "your change"
+git push origin main
 ```
 
-## Branching strategy (optional)
-```bash
-git checkout -b feature/new-feature   # create a branch
-git checkout main                     # go back to main
-git merge feature/new-feature         # merge when done
+## Branch strategy
+
 ```
+main                        ← stable, auto-deploys to GitHub Pages
+feature/advanced-analytics  ← Monte Carlo, AI analyzer (merge when ready)
+feature/budget-enhancements ← latest WIP (merge when ready)
+```
+
+To merge a feature branch:
+```bash
+git checkout main
+git merge feature/budget-enhancements
+git push origin main
+```
+
+## Running the backend server locally
+
+```bash
+cd server
+npm install
+cp .env.example .env   # edit JWT_SECRET!
+npm start
+# → http://localhost:3001
+```
+
+Open `src/dashboard.html` in your browser — it auto-detects the server.

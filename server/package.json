@@ -1,0 +1,34 @@
+{
+  "name": "fintrack-server",
+  "version": "2.0.0",
+  "description": "FinTrack personal finance dashboard — Node.js/Express backend",
+  "main": "index.js",
+  "scripts": {
+    "start":       "node index.js",
+    "dev":         "nodemon index.js",
+    "dev:debug":   "NODE_ENV=development DB_VERBOSE=true nodemon index.js",
+    "test":        "node -e \"require('./index.js'); setTimeout(()=>process.exit(0),2000);\"",
+    "db:reset":    "node -e \"const fs=require('fs');const p=require('./db');try{fs.unlinkSync(process.env.DB_PATH||'./fintrack.db')}catch(e){}p.initSchema();console.log('DB reset');process.exit(0);\"",
+    "lint":        "eslint . --ext .js"
+  },
+  "dependencies": {
+    "bcryptjs":          "^2.4.3",
+    "better-sqlite3":    "^9.4.3",
+    "cors":              "^2.8.5",
+    "dotenv":            "^16.4.5",
+    "express":           "^4.18.3",
+    "express-rate-limit":"^7.2.0",
+    "helmet":            "^7.1.0",
+    "jsonwebtoken":      "^9.0.2",
+    "node-fetch":        "^2.7.0"
+  },
+  "devDependencies": {
+    "eslint":   "^8.57.0",
+    "nodemon":  "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm":  ">=9.0.0"
+  },
+  "license": "MIT"
+}

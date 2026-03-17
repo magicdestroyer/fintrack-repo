@@ -216,48 +216,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .chart-range-btn:hover{border-color:var(--accent);color:var(--accent);}
 .chart-range-btn.active{background:var(--accent);color:#0d0f12;border-color:var(--accent);font-weight:600;}
 ::-webkit-scrollbar{width:4px;height:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
-
-/* ── MOBILE RESPONSIVE ─────────────────────────────────────────────────── */
-@media (max-width:768px) {
-  .app{flex-direction:column;}
-  .sidebar{width:100%;height:auto;position:fixed;bottom:0;top:auto;left:0;right:0;z-index:100;
-    flex-direction:row;padding:0;border-right:none;border-top:1px solid var(--border);
-    overflow-x:auto;overflow-y:hidden;}
-  .logo,.logo-sub,.nav-lbl,.sidebar-footer,.sb-name,.sb-out{display:none;}
-  .sb-user{margin:0;padding:6px 10px;}
-  .sb-av{width:32px;height:32px;flex-shrink:0;}
-  .nav-item{flex-direction:column;padding:8px 12px;gap:2px;min-width:60px;font-size:10px;
-    border-radius:0;justify-content:center;}
-  .ni{width:20px;height:20px;}
-  .main{padding:1rem;padding-bottom:80px;overflow-y:auto;max-height:100vh;}
-  .sg{grid-template-columns:1fr 1fr;}
-  .tc{grid-template-columns:1fr;}
-  .two-col{grid-template-columns:1fr;}
-  .bg2{grid-template-columns:1fr;}
-  .cg3{grid-template-columns:1fr 1fr;}
-  .setg{grid-template-columns:1fr;}
-  .stkg{grid-template-columns:1fr;}
-  .hysa-grid{grid-template-columns:1fr;}
-  .thg{grid-template-columns:repeat(3,1fr);}
-  .totals-bar,.tbar{grid-template-columns:repeat(2,1fr);}
-  .asg,.add-stock-grid{grid-template-columns:1fr 1fr;}
-  .asf{padding:0.875rem;}
-  .sbkt-grid{grid-template-columns:1fr;}
-  .auth-box{width:calc(100vw - 2rem);margin:1rem;}
-  .page-title,.ph h1{font-size:18px;}
-}
-@media (max-width:480px) {
-  .sg{grid-template-columns:1fr;}
-  .cg3{grid-template-columns:1fr;}
-  .asg,.add-stock-grid{grid-template-columns:1fr;}
-  .totals-bar,.tbar{grid-template-columns:1fr;}
-}
-/* Touch-friendly targets */
-@media (pointer:coarse) {
-  .nav-item,.sbtn,.save-btn,.year-btn,.yb,.proj-tab,.chart-range-btn{min-height:44px;min-width:44px;}
-  .del-btn,.dsk,.dhy{min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center;}
-  input[type=range]{height:28px;}
-}
 </style>
 </head>
 <body>
@@ -271,35 +229,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div id="login-form">
       <div class="auth-field"><label>Username</label><input type="text" id="lu" placeholder="Username" autocomplete="username"></div>
-      <div class="auth-field"><label>Password</label>
-  <div style="position:relative;display:flex;align-items:center;">
-    <input type="password" id="lp" placeholder="Password" autocomplete="current-password"
-      onkeydown="if(event.key==='Enter')doLogin()"
-      style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 40px 10px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
-    <button type="button" onclick="togglePw('lp','lp-eye')" tabindex="-1"
-      style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;line-height:1;" id="lp-eye">👁</button>
-  </div>
-</div>
+      <div class="auth-field"><label>Password</label><input type="password" id="lp" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="auth-btn" onclick="doLogin()">Sign in</button>
     </div>
     <div id="signup-form" style="display:none;">
       <div class="auth-field"><label>Username</label><input type="text" id="su" placeholder="Choose a username"></div>
-      <div class="auth-field"><label>Password</label>
-  <div style="position:relative;display:flex;align-items:center;">
-    <input type="password" id="sp" placeholder="Choose a password"
-      style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 40px 10px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
-    <button type="button" onclick="togglePw('sp','sp-eye')" tabindex="-1"
-      style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;line-height:1;" id="sp-eye">👁</button>
-  </div>
-</div>
-      <div class="auth-field"><label>Confirm password</label>
-  <div style="position:relative;display:flex;align-items:center;">
-    <input type="password" id="sp2" placeholder="Confirm password"
-      style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 40px 10px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
-    <button type="button" onclick="togglePw('sp2','sp2-eye')" tabindex="-1"
-      style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;line-height:1;" id="sp2-eye">👁</button>
-  </div>
-</div>
+      <div class="auth-field"><label>Password</label><input type="password" id="sp" placeholder="Choose a password"></div>
+      <div class="auth-field"><label>Confirm password</label><input type="password" id="sp2" placeholder="Confirm password"></div>
       <div class="auth-field"><label>Date of birth</label><input type="date" id="su-dob" style="color-scheme:dark;" placeholder="YYYY-MM-DD"></div>
       <div class="auth-field">
         <label>Risk tolerance</label>
@@ -604,12 +540,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
               </select>
             </div>
             <div class="sfield"><label>Change password</label>
-              <div style="position:relative;display:flex;align-items:center;margin-bottom:8px;">
-  <input type="password" id="npw" placeholder="New password"
-    style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 40px 8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
-  <button type="button" onclick="togglePw('npw','npw-eye')" tabindex="-1"
-    style="position:absolute;right:8px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:4px;line-height:1;" id="npw-eye">👁</button>
-</div>
+              <input type="password" id="npw" placeholder="New password" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px;">
               <button class="sbtn" onclick="chgPw()" style="padding:8px 16px;">Update</button>
               <div id="pwm" style="font-size:12px;color:var(--accent);margin-top:6px;min-height:16px;"></div>
             </div>
@@ -763,7 +694,26 @@ function swTab(t){
   document.getElementById('tab-signup').className='auth-tab'+(t==='signup'?' active':'');
   document.getElementById('aerr').textContent='';
 }
-// doLogin and doSignup defined below as async (backend-aware versions)
+function doLogin(){
+  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;
+  if(!u||!p){setAE('Please fill in all fields.');return;}
+  const f=gU().find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===hp(p));
+  if(!f){setAE('Invalid username or password.');return;}
+  loginAs(f);
+}
+function doSignup(){
+  const u=document.getElementById('su').value.trim(),p=document.getElementById('sp').value,p2=document.getElementById('sp2').value;
+  if(!u||!p||!p2){setAE('Please fill in all fields.');return;}
+  if(u.length<3){setAE('Username must be at least 3 characters.');return;}
+  if(p.length<4){setAE('Password must be at least 4 characters.');return;}
+  if(p!==p2){setAE('Passwords do not match.');return;}
+  const us=gU();
+  if(us.find(x=>x.username.toLowerCase()===u.toLowerCase())){setAE('Username already taken.');return;}
+  const dob=document.getElementById('su-dob')?.value||'';
+  const risk=document.getElementById('su-risk')?.value||'moderate';
+  const nu={id:Date.now().toString(36),username:u,password:hp(p),dob,risk};
+  us.push(nu);sU(us);loginAs(nu);
+}
 function loginAs(user){
   CU=user; localStorage.setItem('ft_session',user.id);
   document.getElementById('auth-screen').style.display='none';
@@ -771,9 +721,6 @@ function loginAs(user){
   document.getElementById('sbav').textContent=user.username[0].toUpperCase();
   document.getElementById('sbname').textContent=user.username;
   document.getElementById('setu').textContent=user.username;
-  // Sync DOB/risk from server response if present
-  if(user.dob)  CU.dob  = user.dob;
-  if(user.risk) CU.risk = user.risk;
   budgets=gB(); ensureYear(CY);
   hysa=gH(); nhid=Math.max(...hysa.map(h=>h.id),0)+1;
   stocks=gSt(); nsid=Math.max(...stocks.map(s=>s.id),0)+1;
@@ -918,16 +865,11 @@ function showPage(id){
   if(id==='dashboard')rdash();if(id==='budget')rbudget();if(id==='projections')renderProj();if(id==='hysa')rHysa();if(id==='stocks')rStocks();if(id==='history')rHist();if(id==='settings'){renderSettings();populateProfileFields();}
 }
 
-async function saveProfile(){
+function saveProfile(){
   const dob=document.getElementById('profile-dob')?.value||'';
   const risk=document.getElementById('profile-risk')?.value||'moderate';
-  // Update local user record
   const us=gU(); const idx=us.findIndex(u=>u.id===CU.id);
   if(idx>=0){ us[idx].dob=dob; us[idx].risk=risk; sU(us); CU=us[idx]; }
-  // Sync to backend if available
-  if(USE_BACKEND){
-    await apiRequest('PUT', '/auth/profile', {dob, risk});
-  }
   const ageEl=document.getElementById('profile-age');
   const age=getUserAge();
   if(ageEl) ageEl.textContent = age ? `Age ${age} · ${Math.max(0,65-age)} years to retirement` : '';
@@ -1551,7 +1493,7 @@ function buildStockPrompt(ticker,acct,ctx,portfolioCtx){
   const p=getUserProfileContext();
   const riskGuidance={
     conservative:'Prioritize low-volatility, dividend-paying, or bond-like instruments. Flag any high-beta or speculative characteristics.',
-    moderate:'Balance growth potential with reasonable risk. Flag extreme volatility but do not avoid all risk.',
+    moderate:'Balance growth potential with reasonable risk. Flag extreme volatility but don't avoid all risk.',
     aggressive:'Emphasize growth potential, moat, and upside. Downside risk is acceptable for long-term hold.',
     speculative:'Give bold analysis. Include options potential, short-term catalysts, and high-conviction bull/bear cases.'
   };
@@ -1937,12 +1879,7 @@ function exportData(){const d={budgets,hysa,stocks,settings,exportDate:new Date(
 // both offline (file://) and with the server running.
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// Auto-detect: use relative path when served from the Node server, localhost otherwise
-const API_BASE = window.location.protocol === 'file:'
-  ? 'http://localhost:3001/api'
-  : (window.location.port === '3001' || window.location.hostname !== 'localhost'
-      ? '/api'
-      : 'http://localhost:3001/api');
+const API_BASE   = 'http://localhost:3001/api';
 let   API_TOKEN  = localStorage.getItem('ft_api_token') || null;
 let   USE_BACKEND = false; // set to true after health check passes
 
@@ -2348,26 +2285,15 @@ function updateLiveTicker() {
 
 
 // ── PWA: Service Worker Registration ─────────────────────────────────────────
-// Only register when the app is deployed on its own origin (not Claude preview,
-// not file://, not any third-party host). sw.js is written to server/public/sw.js.
-(function() {
-  if (!('serviceWorker' in navigator)) return;
-  const h = window.location.hostname;
-  const proto = window.location.protocol;
-  const SKIP_HOSTS = ['claudeusercontent.com','claude.ai','anthropic.com','localhost.claude'];
-  const onSkipHost = SKIP_HOSTS.some(s => h.includes(s));
-  const onFileProto = proto === 'file:';
-  // Only register on http://localhost:3001 or a real deployed https domain
-  const isLocal = proto === 'http:' && h === 'localhost';
-  const isDeployed = proto === 'https:' && !onSkipHost;
-  if (!onFileProto && !onSkipHost && (isLocal || isDeployed)) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => { console.log('[SW] registered:', reg.scope); setInterval(() => reg.update(), 60000); })
-        .catch(err => console.warn('[SW] registration failed:', err));
-    });
-  }
-})();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('[SW] registered:', reg.scope);
+      // Check for updates every 60s while app is open
+      setInterval(() => reg.update(), 60000);
+    }).catch(err => console.warn('[SW] registration failed:', err));
+  });
+}
 
 // ── Deep link support: ?page=stocks loads that page on open ──────────────────
 window.addEventListener('DOMContentLoaded', () => {
@@ -2400,20 +2326,6 @@ window.addEventListener('appinstalled', () => {
   console.log('[PWA] App installed successfully');
 });
 
-
-// ── PASSWORD VISIBILITY TOGGLE ────────────────────────────────────────────────
-function togglePw(inputId, btnId) {
-  const inp = document.getElementById(inputId);
-  const btn = document.getElementById(btnId);
-  if (!inp) return;
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    if (btn) btn.textContent = '🙈';
-  } else {
-    inp.type = 'password';
-    if (btn) btn.textContent = '👁';
-  }
-}
 </script>
 </body>
 </html>

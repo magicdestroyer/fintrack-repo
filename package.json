@@ -1,0 +1,25 @@
+{
+  "name": "fintrack",
+  "version": "2.0.0",
+  "description": "FinTrack — Personal finance dashboard (stocks, budget, HYSA, Roth IRA projections)",
+  "private": true,
+  "scripts": {
+    "start":       "cd server && node index.js",
+    "dev":         "cd server && npm run dev",
+    "install:all": "cd server && npm install",
+    "test":        "cd server && npm test",
+    "docker:up":   "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:build":"docker-compose up -d --build"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url":  "https://github.com/YOUR_USERNAME/fintrack.git"
+  },
+  "keywords": ["finance", "stocks", "budget", "hysa", "roth-ira", "pwa"]
+}
