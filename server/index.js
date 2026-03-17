@@ -39,17 +39,17 @@ console.log(`[db] SQLite ready → ${process.env.DB_PATH || './fintrack.db'}`);
 // ── Security middleware ───────────────────────────────────────────────────────
 // Helmet sets safe HTTP headers; relax CSP just enough for CDN fonts & charts
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc:  ["'self'"],
-      scriptSrc:   ["'self'", "'unsafe-inline'", 'cdnjs.cloudflare.com'],
-      styleSrc:    ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
-      fontSrc:     ["'self'", 'fonts.gstatic.com'],
-      imgSrc:      ["'self'", 'data:', 'blob:'],
-      connectSrc:  ["'self'", 'query1.finance.yahoo.com', 'api.anthropic.com'],
-    },
-  },
-  // Allow the PWA manifest and service worker to load
+  contentSecurityPolicy: false,//: {
+    //directives: {
+     // defaultSrc:  ["'self'"],
+    //  scriptSrc:   ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'cdnjs.cloudflare.com'],
+    //  scriptSrcAttr: ["'unsafe-inline'"],
+    //  styleSrc:    ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
+    //  fontSrc:     ["'self'", 'fonts.gstatic.com', 'fonts.googleapis.com'],
+    //  imgSrc:      ["'self'", 'data:', 'blob:'],
+    //  connectSrc:  ["'self'", 'query1.finance.yahoo.com', 'api.anthropic.com', 'api.allorigins.win', 'fonts.googleapis.com', 'fonts.gstatic.com'],
+   // },
+  //},
   crossOriginEmbedderPolicy: false,
 }));
 
@@ -60,8 +60,8 @@ const ALLOWED_ORIGINS = process.env.CORS_ORIGIN
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow server-to-server (no Origin header) and allowed origins
-    if (!origin || ALLOWED_ORIGINS.includes(origin) || ENV === 'development') {
+    // Allow server-to-server (no Origin header), file:// (origin 'null'), and allowed origins
+    if (!origin || origin === 'null' || ALLOWED_ORIGINS.includes(origin) || ENV === 'development') {
       return cb(null, true);
     }
     cb(new Error(`CORS: origin ${origin} not allowed`));
